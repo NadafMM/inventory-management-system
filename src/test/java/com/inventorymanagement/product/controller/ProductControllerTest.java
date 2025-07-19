@@ -52,12 +52,9 @@ import org.springframework.test.web.servlet.MockMvc;
 @DisplayName("ProductController Tests")
 class ProductControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private ObjectMapper objectMapper;
-    @MockBean
-    private ProductService productService;
+    @Autowired private MockMvc mockMvc;
+    @Autowired private ObjectMapper objectMapper;
+    @MockBean private ProductService productService;
     private ProductDto testProduct;
     private ProductDto testProduct2;
 

@@ -37,11 +37,9 @@ import org.springframework.data.domain.Pageable;
 @DisplayName("CategoryService Unit Tests")
 class CategoryServiceTest extends BaseUnitTest {
 
-    @Mock
-    private CategoryRepository categoryRepository;
+    @Mock private CategoryRepository categoryRepository;
 
-    @InjectMocks
-    private CategoryService categoryService;
+    @InjectMocks private CategoryService categoryService;
 
     private Category testCategory;
     private CategoryDto testCategoryDto;
@@ -445,8 +443,7 @@ class CategoryServiceTest extends BaseUnitTest {
             when(categoryRepository.findByParentId(2L)).thenReturn(new ArrayList<>());
 
             categoryService.deleteCategory(categoryId);
-
-            -verify soft delete was applied recursively
+            // verify soft delete was applied recursively
             verify(categoryRepository).findById(categoryId);
             verify(categoryRepository).countProductsByCategoryId(categoryId);
             verify(categoryRepository).findByParentId(categoryId);

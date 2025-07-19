@@ -2,6 +2,7 @@ package com.inventorymanagement.common.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import java.util.Optional;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 /**
  * Database configuration for the Inventory Management System.
@@ -20,6 +23,7 @@ import org.springframework.context.annotation.Primary;
  * @since 2025-01-15
  */
 @Configuration
+@EnableJpaAuditing(auditorAwareRef = "auditorAware")
 public class DatabaseConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(DatabaseConfig.class);
@@ -75,5 +79,15 @@ public class DatabaseConfig {
         logger.info("Configuring HikariCP DataSource for: {}", dataSourceUrl);
 
         return new HikariDataSource(config);
+    }
+
+    /**
+     * Configures the auditor aware bean for JPA auditing.
+     *
+     * @return AuditorAware that provides the current auditor
+     */
+    @Bean
+    public AuditorAware<String> auditorAware() {
+        return () -> Optional.of("SYSTEM");
     }
 }

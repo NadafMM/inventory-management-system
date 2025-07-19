@@ -1,6 +1,7 @@
 package com.inventorymanagement.inventory.model;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -83,13 +84,13 @@ public final class SkuMapper {
         sku.setColor(dto.getColor());
         sku.setPrice(dto.getPrice());
         sku.setCost(dto.getCost());
-        sku.setStockQuantity(dto.getStockQuantity());
-        sku.setReservedQuantity(dto.getReservedQuantity());
-        sku.setReorderPoint(dto.getReorderPoint());
-        sku.setReorderQuantity(dto.getReorderQuantity());
+        sku.setStockQuantity(dto.getStockQuantity() != null ? dto.getStockQuantity() : 0);
+        sku.setReservedQuantity(dto.getReservedQuantity() != null ? dto.getReservedQuantity() : 0);
+        sku.setReorderPoint(dto.getReorderPoint() != null ? dto.getReorderPoint() : 0);
+        sku.setReorderQuantity(dto.getReorderQuantity() != null ? dto.getReorderQuantity() : 0);
         sku.setBarcode(dto.getBarcode());
         sku.setLocation(dto.getLocation());
-        sku.setIsActive(dto.getIsActive());
+        sku.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
         sku.setMetadata(dto.getMetadata());
         sku.setCreatedAt(dto.getCreatedAt());
         sku.setUpdatedAt(dto.getUpdatedAt());
@@ -107,7 +108,7 @@ public final class SkuMapper {
      */
     public static void updateEntityFromDto(Sku sku, SkuDto dto) {
         if (sku == null || dto == null) {
-            return;
+            throw new IllegalArgumentException("Sku and SkuDto must not be null");
         }
 
         sku.setSkuCode(dto.getSkuCode());
@@ -116,13 +117,13 @@ public final class SkuMapper {
         sku.setColor(dto.getColor());
         sku.setPrice(dto.getPrice());
         sku.setCost(dto.getCost());
-        sku.setStockQuantity(dto.getStockQuantity());
-        sku.setReservedQuantity(dto.getReservedQuantity());
-        sku.setReorderPoint(dto.getReorderPoint());
-        sku.setReorderQuantity(dto.getReorderQuantity());
+        sku.setStockQuantity(dto.getStockQuantity() != null ? dto.getStockQuantity() : 0);
+        sku.setReservedQuantity(dto.getReservedQuantity() != null ? dto.getReservedQuantity() : 0);
+        sku.setReorderPoint(dto.getReorderPoint() != null ? dto.getReorderPoint() : 0);
+        sku.setReorderQuantity(dto.getReorderQuantity() != null ? dto.getReorderQuantity() : 0);
         sku.setBarcode(dto.getBarcode());
         sku.setLocation(dto.getLocation());
-        sku.setIsActive(dto.getIsActive());
+        sku.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
         sku.setMetadata(dto.getMetadata());
     }
 
@@ -137,7 +138,10 @@ public final class SkuMapper {
             return null;
         }
 
-        return skus.stream().map(SkuMapper::toDto).collect(Collectors.toList());
+        return skus.stream()
+                .filter(Objects::nonNull)
+                .map(SkuMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -151,7 +155,10 @@ public final class SkuMapper {
             return null;
         }
 
-        return dtos.stream().map(SkuMapper::toEntity).collect(Collectors.toList());
+        return dtos.stream()
+                .filter(Objects::nonNull)
+                .map(SkuMapper::toEntity)
+                .collect(Collectors.toList());
     }
 
     /**

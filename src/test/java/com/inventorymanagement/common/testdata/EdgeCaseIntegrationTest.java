@@ -53,24 +53,16 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration(classes = InventoryManagementApplication.class)
 class EdgeCaseIntegrationTest extends BaseApiTest {
 
-    @Autowired
-    private CategoryService categoryService;
-    @Autowired
-    private ProductService productService;
-    @Autowired
-    private InventoryService inventoryService;
+    @Autowired private CategoryService categoryService;
+    @Autowired private ProductService productService;
+    @Autowired private InventoryService inventoryService;
 
-    @Autowired
-    private CategoryRepository categoryRepository;
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private SkuRepository skuRepository;
-    @Autowired
-    private InventoryTransactionRepository transactionRepository;
+    @Autowired private CategoryRepository categoryRepository;
+    @Autowired private ProductRepository productRepository;
+    @Autowired private SkuRepository skuRepository;
+    @Autowired private InventoryTransactionRepository transactionRepository;
 
-    @Autowired
-    private EntityManager entityManager;
+    @Autowired private EntityManager entityManager;
 
     private Category testCategory;
     private Product testProduct;
@@ -104,12 +96,12 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
         @DisplayName("Should handle database constraint violations during cascading operations")
         @Transactional
         void shouldHandleDatabaseConstraintViolationsDuringCascadingOperations() {
-            -Create products and SKUs dependent on category
+            // Create products and SKUs dependent on category
             Product product1 =
                     TestDataFactory.product().withName("Product 1").withCategory(testCategory).build();
             productRepository.save(product1);
 
- &Then - Try to delete category that has dependent products
+            // Then - Try to delete category that has dependent products
             assertThatThrownBy(() -> categoryService.deleteCategory(testCategory.getId()))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining("Cannot delete category with existing products");
@@ -119,7 +111,7 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
         @DisplayName("Should handle optimistic locking failures")
         @Transactional
         void shouldHandleOptimisticLockingFailures() {
-            -Two different entity instances representing the same database record
+            // Two different entity instances representing the same database record
             Category category1 = categoryRepository.findById(testCategory.getId()).orElseThrow();
             category1.setDescription("First update");
             categoryRepository.save(category1);
@@ -130,7 +122,7 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
             Category category2 = categoryRepository.findById(testCategory.getId()).orElseThrow();
             entityManager.detach(category2);
 
-            -Simulate concurrent modifications
+            // Simulate concurrent modifications
             category1.setDescription("Update from thread 1");
             category2.setDescription("Update from thread 2");
 
@@ -138,7 +130,7 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
             category1 = entityManager.merge(category1);
             entityManager.flush();
 
-            -Second update should fail due to optimistic locking
+            // Second update should fail due to optimistic locking
             assertThatThrownBy(
                     () -> {
                         entityManager.merge(category2);
@@ -180,7 +172,6 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
                 throw new RuntimeException("Test should have failed before this point");
 
             } catch (BusinessException e) {
-                // Expected - validation should prevent duplicate names at same level
                 assertThat(e).isInstanceOfAny(ValidationException.class, BusinessException.class);
             }
 
@@ -196,19 +187,19 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
         @DisplayName("Should handle orphaned record scenarios")
         @Transactional
         void shouldHandleOrphanedRecordScenarios() {
-            -Create SKU with inventory transactions
+            // Create SKU with inventory transactions
             InventoryTransaction transaction =
                     new InventoryTransaction(
                             testSku,
                             InventoryTransaction.TransactionType.ADJUSTMENT,
                             10,
-                            "REF-001",
+                            "REF//001",
                             "MANUAL",
                             "Initial stock",
                             "admin");
             transactionRepository.save(transaction);
 
-            -Try to delete SKU that has transactions
+            // Try to delete SKU that has transactions
             assertThatThrownBy(
                     () -> {
                         skuRepository.delete(testSku);
@@ -228,7 +219,7 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
             ExecutorService executor = Executors.newFixedThreadPool(5);
             String categoryName = "Concurrent Test Category";
 
-            -Multiple threads try to create categories with same name
+            // Multiple threads try to create categories with same name
             List<CompletableFuture<Boolean>> futures =
                     IntStream.range(0, 5)
                             .mapToObj(
@@ -248,8 +239,7 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
                                                     },
                                                     executor))
                             .toList();
-
-            -All should complete (success or failure)
+            // All should complete (success or failure)
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 
             long successCount = futures.stream().mapToLong(f -> f.join() ? 1L : 0L).sum();
@@ -268,8 +258,7 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
             Long testSkuId = testSku.getId();
 
             ExecutorService executor = Executors.newFixedThreadPool(3);
-
-            -Multiple threads try to adjust inventory simultaneously
+            // Multiple threads try to adjust inventory simultaneously
             List<CompletableFuture<Boolean>> futures =
                     IntStream.range(0, 10)
                             .mapToObj(
@@ -293,8 +282,7 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
                                                     },
                                                     executor))
                             .toList();
-
-            -All should complete
+            // All should complete
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 
             long successCount = futures.stream().mapToLong(f -> f.join() ? 1L : 0L).sum();
@@ -313,7 +301,7 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
         @Test
         @DisplayName("Should handle extremely large result sets")
         void shouldHandleExtremelyLargeResultSets() {
-            -Create many categories
+            // Create many categories
             List<Category> categories =
                     IntStream.range(0, 1000)
                             .mapToObj(
@@ -326,12 +314,10 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
                             .toList();
 
             categoryRepository.saveAll(categories);
-
-            -Request very large page
+            // Request very large page
             Pageable largePage = PageRequest.of(0, 5000);
             var result = categoryRepository.findAllActive(largePage);
-
-            -Should handle gracefully without memory issues
+            // Should handle gracefully without memory issues
             assertThat(result).isNotNull();
             assertThat(result.getContent()).isNotEmpty();
             // Should return all active categories (1000 bulk + 1 test category from setup)
@@ -348,7 +334,7 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
         @Test
         @DisplayName("Should handle very deep category hierarchies")
         void shouldHandleVeryDeepCategoryHierarchies() {
-            -Create deep hierarchy
+            // Create deep hierarchy
             Category parent = testCategory;
 
             for (int i = 1; i <= 20; i++) {
@@ -363,7 +349,7 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
                 parent = child;
             }
 
- &Then - Should handle deep hierarchy queries
+            // Should handle deep hierarchy queries
             List<Category> path = categoryRepository.findPathToCategory(parent.getId());
             assertThat(path).hasSizeGreaterThanOrEqualTo(20);
         }
@@ -371,7 +357,7 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
         @Test
         @DisplayName("Should handle inventory with massive transaction history")
         void shouldHandleInventoryWithMassiveTransactionHistory() {
-            -Create many transactions
+            // Create many transactions
             List<InventoryTransaction> transactions =
                     IntStream.range(0, 1000)
                             .mapToObj(
@@ -387,12 +373,10 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
                             .toList();
 
             transactionRepository.saveAll(transactions);
-
-            -Query large transaction history
+            // Query large transaction history
             LocalDateTime start = LocalDateTime.now().minusDays(1);
             LocalDateTime end = LocalDateTime.now().plusDays(1);
-
-            -Should handle large result sets
+            // Should handle large result sets
             List<InventoryTransaction> result =
                     inventoryService
                             .getTransactionsByDateRange(start, end, PageRequest.of(0, 1500))
@@ -409,11 +393,9 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
         @Test
         @DisplayName("Should handle maximum field length boundaries")
         void shouldHandleMaximumFieldLengthBoundaries() {
-            -Category with maximum length fields
             String maxName = "A".repeat(255); // Assuming 255 is max length
             String maxDescription = "D".repeat(1000); // Assuming 1000 is max length
 
- &Then - Should handle at boundary
             Category maxCategory =
                     TestDataFactory.category().withName(maxName).withDescription(maxDescription).build();
 
@@ -425,12 +407,11 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
         @Test
         @DisplayName("Should handle numeric precision boundaries")
         void shouldHandleNumericPrecisionBoundaries() {
-            -SKU with extreme prices that fit within NUMERIC(10, 2) constraints
+            // SKU with extreme prices that fit within NUMERIC(10, 2) constraints
             // NUMERIC(10,2) allows max 8 digits before decimal + 2 after = 99999999.99
             BigDecimal maxPrice = new BigDecimal("99999999.99");
             BigDecimal minPrice = new BigDecimal("0.01");
-
-            -Create SKUs with boundary prices
+            // Create SKUs with boundary prices
             Sku maxPriceSku =
                     TestDataFactory.sku()
                             .withSkuCode("MAX-PRICE-" + System.currentTimeMillis())
@@ -455,11 +436,10 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
         @Test
         @DisplayName("Should handle extreme date boundaries")
         void shouldHandleExtremeDateBoundaries() {
-            -Transactions with extreme dates
+            // Transactions with extreme dates
             LocalDateTime farPast = LocalDateTime.of(1900, 1, 1, 0, 0);
             LocalDateTime farFuture = LocalDateTime.of(2100, 12, 31, 23, 59);
 
- &Then - Should handle date range queries with extreme dates
             assertThatThrownBy(
                     () ->
                             inventoryService.getTransactionsByDateRange(
@@ -476,7 +456,7 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
         @Test
         @DisplayName("Should maintain consistency across entity relationships")
         void shouldMaintainConsistencyAcrossEntityRelationships() {
-            -Complex entity graph using service to ensure proper hierarchy setup
+            // Complex entity graph using service to ensure proper hierarchy setup
             CategoryDto parentCategoryDto = new CategoryDto();
             parentCategoryDto.setName("Parent Category");
             CategoryDto createdParent = categoryService.createCategory(parentCategoryDto);
@@ -495,13 +475,11 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
                                     .withName("Category Product")
                                     .withCategory(childCategory)
                                     .build());
-
-            -Delete parent category
+            // Delete parent category
             Long parentCategoryId = createdParent.getId();
             assertThatThrownBy(() -> categoryService.deleteCategory(parentCategoryId))
                     .isInstanceOf(BusinessException.class);
-
-            -Verify child entities still exist and are consistent
+            // Verify child entities still exist and are consistent
             assertThat(categoryRepository.findById(createdChild.getId())).isPresent();
             assertThat(productRepository.findById(categoryProduct.getId())).isPresent();
         }
@@ -509,14 +487,12 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
         @Test
         @DisplayName("Should handle circular reference detection")
         void shouldHandleCircularReferenceDetection() {
-            -Setup potential circular reference
+            // Setup potential circular reference
             Category parent = testCategory;
             Category child =
                     TestDataFactory.category().withName("Child Category").withParent(parent).build();
             child = categoryRepository.save(child);
 
- &Then - Try to update parent to make it a child of its own child
-            // (circular reference)
             CategoryDto updateDto = new CategoryDto();
             updateDto.setParentId(child.getId()); // Try to make parent a child of its own child
 
@@ -530,7 +506,7 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
         @Test
         @DisplayName("Should handle entity state consistency during failures")
         void shouldHandleEntityStateConsistencyDuringFailures() {
-            -Product with SKUs
+            // Product with SKUs
             long timestamp = System.currentTimeMillis();
             Sku sku1 =
                     TestDataFactory.sku()
@@ -547,8 +523,7 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
 
             // Store original price for verification
             BigDecimal originalPrice = sku1.getPrice();
-
-            -Try operation that should fail due to validation
+            // Try operation that should fail due to validation
             assertThatThrownBy(
                     () -> {
                         // Simulate operation that fails after partial completion
@@ -562,8 +537,7 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
                             ValidationException.class,
                             org.hibernate.exception.ConstraintViolationException.class,
                             jakarta.validation.ConstraintViolationException.class);
-
-            -Verify entity remains in consistent state by refreshing from database
+            // Verify entity remains in consistent state by refreshing from database
             entityManager.clear(); // Clear persistence context
             Sku refreshedSku1 = skuRepository.findById(sku1.getId()).orElseThrow();
             assertThat(refreshedSku1.getPrice())
@@ -578,15 +552,14 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
         @Test
         @DisplayName("Should handle graceful degradation during service failures")
         void shouldHandleGracefulDegradationDuringServiceFailures() {
-            -Service encounters unexpected errors
+            // Service encounters unexpected errors
             assertThatThrownBy(
                     () -> {
                         // Force a low-level database error
                         entityManager.createNativeQuery("INVALID SQL SYNTAX").executeUpdate();
                     })
                     .isInstanceOf(Exception.class);
-
-            -Other operations should still work
+            // Other operations should still work
             List<Category> categories = categoryRepository.findAllActive();
             assertThat(categories).isNotEmpty();
         }
@@ -594,7 +567,7 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
         @Test
         @DisplayName("Should handle partial failure in batch operations")
         void shouldHandlePartialFailureInBatchOperations() {
-            -Mix of valid and invalid data
+            // Mix of valid and invalid data
             List<Category> categories =
                     Arrays.asList(
                             TestDataFactory.category().withName("TEST Valid Category 1").build(),
@@ -602,7 +575,6 @@ class EdgeCaseIntegrationTest extends BaseApiTest {
                             TestDataFactory.category().withName(null).build(), // Invalid
                             TestDataFactory.category().withName("TEST Valid Category 3").build());
 
- &Then - Batch operation should handle partial failures
             assertThatThrownBy(() -> categoryRepository.saveAll(categories))
                     .isInstanceOfAny(ConstraintViolationException.class, ValidationException.class);
 

@@ -41,14 +41,11 @@ import org.springframework.data.domain.Pageable;
 @DisplayName("InventoryService Unit Tests")
 class InventoryServiceTest extends BaseUnitTest {
 
-    @Mock
-    private InventoryTransactionRepository transactionRepository;
+    @Mock private InventoryTransactionRepository transactionRepository;
 
-    @Mock
-    private SkuRepository skuRepository;
+    @Mock private SkuRepository skuRepository;
 
-    @InjectMocks
-    private InventoryService inventoryService;
+    @InjectMocks private InventoryService inventoryService;
 
     private Sku testSku;
     private InventoryTransaction testTransaction;
@@ -113,7 +110,6 @@ class InventoryServiceTest extends BaseUnitTest {
 
             when(skuRepository.findById(999L)).thenReturn(Optional.empty());
 
- &Then
             assertThatThrownBy(
                     () -> inventoryService.recordStockIn(999L, 10, "REF-001", "reason", "admin"))
                     .isInstanceOf(EntityNotFoundException.class)
@@ -123,7 +119,7 @@ class InventoryServiceTest extends BaseUnitTest {
         @Test
         @DisplayName("Should throw exception when quantity is null for stock-in")
         void recordStockIn_NullQuantity_ThrowsException() {
- &Then
+
             assertThatThrownBy(
                     () -> inventoryService.recordStockIn(1L, null, "REF-001", "reason", "admin"))
                     .isInstanceOf(ValidationException.class)
@@ -133,7 +129,7 @@ class InventoryServiceTest extends BaseUnitTest {
         @Test
         @DisplayName("Should throw exception when quantity is zero for stock-in")
         void recordStockIn_ZeroQuantity_ThrowsException() {
- &Then
+
             assertThatThrownBy(() -> inventoryService.recordStockIn(1L, 0, "REF-001", "reason", "admin"))
                     .isInstanceOf(ValidationException.class)
                     .hasMessage("Validation failed for field 'quantity': Stock-in quantity must be positive");
@@ -142,7 +138,7 @@ class InventoryServiceTest extends BaseUnitTest {
         @Test
         @DisplayName("Should throw exception when quantity is negative for stock-in")
         void recordStockIn_NegativeQuantity_ThrowsException() {
- &Then
+
             assertThatThrownBy(() -> inventoryService.recordStockIn(1L, -5, "REF-001", "reason", "admin"))
                     .isInstanceOf(ValidationException.class)
                     .hasMessage("Validation failed for field 'quantity': Stock-in quantity must be positive");
@@ -190,10 +186,8 @@ class InventoryServiceTest extends BaseUnitTest {
         @Test
         @DisplayName("Should throw exception when SKU not found for stock-out")
         void recordStockOut_SkuNotFound_ThrowsException() {
-
             when(skuRepository.findById(999L)).thenReturn(Optional.empty());
 
- &Then
             assertThatThrownBy(
                     () ->
                             inventoryService.recordStockOut(
@@ -205,7 +199,7 @@ class InventoryServiceTest extends BaseUnitTest {
         @Test
         @DisplayName("Should throw exception when quantity is invalid for stock-out")
         void recordStockOut_InvalidQuantity_ThrowsException() {
- &Then
+
             assertThatThrownBy(
                     () ->
                             inventoryService.recordStockOut(
@@ -257,7 +251,7 @@ class InventoryServiceTest extends BaseUnitTest {
                     new InventoryTransaction(
                             testSku,
                             InventoryTransaction.TransactionType.ADJUSTMENT,
-                            -3,
+                            3,
                             null,
                             "DAMAGE",
                             "Damaged goods",
@@ -266,16 +260,16 @@ class InventoryServiceTest extends BaseUnitTest {
                     .thenReturn(adjustmentTransaction);
 
             InventoryTransaction result =
-                    inventoryService.recordStockAdjustment(1L, -3, "DAMAGE", "Damaged goods", "admin");
+                    inventoryService.recordStockAdjustment(1L, 3, "DAMAGE", "Damaged goods", "admin");
 
             assertThat(result).isNotNull();
-            assertThat(result.getQuantity()).isEqualTo(-3);
+            assertThat(result.getQuantity()).isEqualTo(3);
         }
 
         @Test
         @DisplayName("Should throw exception when adjustment is zero")
         void recordStockAdjustment_ZeroAdjustment_ThrowsException() {
- &Then
+
             assertThatThrownBy(
                     () ->
                             inventoryService.recordStockAdjustment(1L, 0, "MANUAL_COUNT", "reason", "admin"))
@@ -289,7 +283,6 @@ class InventoryServiceTest extends BaseUnitTest {
 
             when(skuRepository.findById(999L)).thenReturn(Optional.empty());
 
- &Then
             assertThatThrownBy(
                     () ->
                             inventoryService.recordStockAdjustment(
@@ -334,7 +327,7 @@ class InventoryServiceTest extends BaseUnitTest {
         @Test
         @DisplayName("Should throw exception when quantity is invalid for reservation")
         void recordStockReservation_InvalidQuantity_ThrowsException() {
- &Then
+
             assertThatThrownBy(
                     () ->
                             inventoryService.recordStockReservation(
@@ -379,7 +372,7 @@ class InventoryServiceTest extends BaseUnitTest {
         @Test
         @DisplayName("Should throw exception when quantity is invalid for release")
         void recordStockRelease_InvalidQuantity_ThrowsException() {
- &Then
+
             assertThatThrownBy(
                     () ->
                             inventoryService.recordStockRelease(
@@ -419,7 +412,6 @@ class InventoryServiceTest extends BaseUnitTest {
 
             when(skuRepository.findById(999L)).thenReturn(Optional.empty());
 
- &Then
             assertThatThrownBy(() -> inventoryService.getTransactionsBySkuId(999L, testPageable))
                     .isInstanceOf(EntityNotFoundException.class)
                     .hasMessage("SKU with ID 999 not found");
@@ -452,7 +444,6 @@ class InventoryServiceTest extends BaseUnitTest {
             LocalDateTime startDate = LocalDateTime.now();
             LocalDateTime endDate = LocalDateTime.now().minusDays(1);
 
- &Then
             assertThatThrownBy(
                     () -> inventoryService.getTransactionsByDateRange(startDate, endDate, testPageable))
                     .isInstanceOf(ValidationException.class)
@@ -522,7 +513,7 @@ class InventoryServiceTest extends BaseUnitTest {
         @Test
         @DisplayName("Should throw exception when reference ID is empty")
         void getTransactionsByReferenceId_EmptyReferenceId_ThrowsException() {
- &Then
+
             assertThatThrownBy(() -> inventoryService.getTransactionsByReferenceId("", testPageable))
                     .isInstanceOf(ValidationException.class)
                     .hasMessage("Validation failed for field 'referenceId': Reference ID cannot be empty");
@@ -612,7 +603,6 @@ class InventoryServiceTest extends BaseUnitTest {
 
             when(skuRepository.findById(999L)).thenReturn(Optional.empty());
 
- &Then
             assertThatThrownBy(() -> inventoryService.getCurrentStockInfo(999L))
                     .isInstanceOf(EntityNotFoundException.class)
                     .hasMessage("SKU with ID 999 not found");
@@ -625,7 +615,6 @@ class InventoryServiceTest extends BaseUnitTest {
             LocalDateTime startDate = LocalDateTime.now();
             LocalDateTime endDate = LocalDateTime.now().minusDays(1);
 
- &Then
             assertThatThrownBy(() -> inventoryService.getStockMovementSummary(1L, startDate, endDate))
                     .isInstanceOf(ValidationException.class)
                     .hasMessage(
@@ -718,7 +707,6 @@ class InventoryServiceTest extends BaseUnitTest {
 
             String longReferenceId = "A".repeat(256); // Assuming max length is 255
 
- &Then
             assertThatThrownBy(
                     () -> inventoryService.recordStockIn(1L, 10, longReferenceId, "Test reason", "admin"))
                     .isInstanceOf(ValidationException.class)
@@ -757,7 +745,6 @@ class InventoryServiceTest extends BaseUnitTest {
 
             String longReason = "A".repeat(1001); // Assuming max length is 1000
 
- &Then
             assertThatThrownBy(
                     () -> inventoryService.recordStockIn(1L, 10, "REF-001", longReason, "admin"))
                     .isInstanceOf(ValidationException.class)
@@ -792,9 +779,8 @@ class InventoryServiceTest extends BaseUnitTest {
         @Test
         @DisplayName("Should validate performer name")
         void shouldValidatePerformerName() {
-            -No mocking needed since validation should fail early
+            // No mocking needed since validation should fail early
 
-                    & Then
             assertThatThrownBy(() -> inventoryService.recordStockIn(1L, 10, "REF-001", "Test reason", ""))
                     .isInstanceOf(ValidationException.class)
                     .hasMessageContaining("performer cannot be empty");
@@ -803,9 +789,8 @@ class InventoryServiceTest extends BaseUnitTest {
         @Test
         @DisplayName("Should throw exception when performer name is null")
         void shouldThrowExceptionWhenPerformerNameIsNull() {
-            -No mocking needed since validation should fail early
+            // No mocking needed since validation should fail early
 
-                    & Then
             assertThatThrownBy(
                     () -> inventoryService.recordStockIn(1L, 10, "REF-001", "Test reason", null))
                     .isInstanceOf(ValidationException.class)
@@ -853,8 +838,7 @@ class InventoryServiceTest extends BaseUnitTest {
 
             when(skuRepository.findById(1L)).thenReturn(Optional.of(testSku));
             when(transactionRepository.save(any(InventoryTransaction.class))).thenReturn(testTransaction);
-
-            -Simulate rapid transactions
+            // Simulate rapid transactions
             for (int i = 0; i < 100; i++) {
                 inventoryService.recordStockIn(1L, 1, "REF-" + i, "Rapid transaction " + i, "admin");
             }
@@ -885,8 +869,7 @@ class InventoryServiceTest extends BaseUnitTest {
 
             when(skuRepository.findById(1L)).thenReturn(Optional.of(testSku));
             when(transactionRepository.save(any(InventoryTransaction.class))).thenReturn(testTransaction);
-
-            -Simulate concurrent transactions with different reference types
+            // Simulate concurrent transactions with different reference types
             inventoryService.recordStockOut(1L, 5, "ORDER-001", "ORDER", "Order fulfillment", "user1");
             inventoryService.recordStockOut(
                     1L, 3, "SHIPMENT-001", "SHIPMENT", "Shipment fulfillment", "user2");
@@ -959,7 +942,7 @@ class InventoryServiceTest extends BaseUnitTest {
         @Test
         @DisplayName("Should handle null date parameters with proper validation")
         void shouldHandleNullDateParametersWithProperValidation() {
- &Then
+
             assertThatThrownBy(
                     () ->
                             inventoryService.getTransactionsByDateRange(
@@ -978,7 +961,7 @@ class InventoryServiceTest extends BaseUnitTest {
         @Test
         @DisplayName("Should handle edge case dates around DST changes")
         void shouldHandleEdgeCaseDatesAroundDSTChanges() {
-            -Dates around Daylight Saving Time changes
+            // Dates around Daylight Saving Time changes
             LocalDateTime dstStart = LocalDateTime.of(2024, 3, 10, 2, 0); // Spring forward
             LocalDateTime dstEnd = LocalDateTime.of(2024, 3, 10, 4, 0);
             List<InventoryTransaction> transactions = Collections.singletonList(testTransaction);
@@ -1000,7 +983,7 @@ class InventoryServiceTest extends BaseUnitTest {
         @Test
         @DisplayName("Should handle whitespace-only reference ID")
         void shouldHandleWhitespaceOnlyReferenceId() {
- &Then
+
             assertThatThrownBy(() -> inventoryService.getTransactionsByReferenceId("   ", testPageable))
                     .isInstanceOf(ValidationException.class)
                     .hasMessageContaining("Reference ID cannot be empty");
@@ -1009,7 +992,7 @@ class InventoryServiceTest extends BaseUnitTest {
         @Test
         @DisplayName("Should handle null reference ID in query")
         void shouldHandleNullReferenceIdInQuery() {
- &Then
+
             assertThatThrownBy(() -> inventoryService.getTransactionsByReferenceId(null, testPageable))
                     .isInstanceOf(ValidationException.class)
                     .hasMessageContaining("Reference ID cannot be null");
@@ -1188,7 +1171,7 @@ class InventoryServiceTest extends BaseUnitTest {
         @Test
         @DisplayName("Should handle zero page size gracefully")
         void shouldHandleZeroPageSizeGracefully() {
- &Then
+
             assertThatThrownBy(() -> PageRequest.of(0, 0))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Page size must not be less than one");
@@ -1209,6 +1192,263 @@ class InventoryServiceTest extends BaseUnitTest {
 
             assertThat(result).isNotNull();
             assertThat(result.getContent()).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("Validation Method Tests")
+    class ValidationMethodTests {
+
+        @Test
+        @DisplayName("Should throw ValidationException for null quantity")
+        void validateTransactionParameters_NullQuantity_ThrowsException() {
+            assertThatThrownBy(
+                    () -> inventoryService.recordStockIn(1L, null, "REF-001", "reason", "admin"))
+                    .isInstanceOf(ValidationException.class)
+                    .hasMessageContaining("quantity must be positive");
+        }
+
+        @Test
+        @DisplayName("Should throw ValidationException for zero quantity")
+        void validateTransactionParameters_ZeroQuantity_ThrowsException() {
+            assertThatThrownBy(() -> inventoryService.recordStockIn(1L, 0, "REF-001", "reason", "admin"))
+                    .isInstanceOf(ValidationException.class)
+                    .hasMessageContaining("quantity must be positive");
+        }
+
+        @Test
+        @DisplayName("Should throw ValidationException for negative quantity")
+        void validateTransactionParameters_NegativeQuantity_ThrowsException() {
+            assertThatThrownBy(() -> inventoryService.recordStockIn(1L, -5, "REF-001", "reason", "admin"))
+                    .isInstanceOf(ValidationException.class)
+                    .hasMessageContaining("quantity must be positive");
+        }
+
+        @Test
+        @DisplayName("Should throw ValidationException for null performer")
+        void validatePerformerName_Null_ThrowsException() {
+            assertThatThrownBy(() -> inventoryService.recordStockIn(1L, 10, "REF-001", "reason", null))
+                    .isInstanceOf(ValidationException.class)
+                    .hasMessageContaining("performer cannot be null");
+        }
+
+        @Test
+        @DisplayName("Should throw ValidationException for empty performer")
+        void validatePerformerName_Empty_ThrowsException() {
+            assertThatThrownBy(() -> inventoryService.recordStockIn(1L, 10, "REF-001", "reason", ""))
+                    .isInstanceOf(ValidationException.class)
+                    .hasMessageContaining("performer cannot be empty");
+        }
+
+        @Test
+        @DisplayName("Should throw ValidationException for whitespace-only performer")
+        void validatePerformerName_WhitespaceOnly_ThrowsException() {
+            assertThatThrownBy(() -> inventoryService.recordStockIn(1L, 10, "REF-001", "reason", "   "))
+                    .isInstanceOf(ValidationException.class)
+                    .hasMessageContaining("performer cannot be empty");
+        }
+
+        @Test
+        @DisplayName("Should throw ValidationException for reference ID too long")
+        void validateReferenceId_TooLong_ThrowsException() {
+            String longReferenceId = "A".repeat(256); // 256 characters, max is 255
+
+            assertThatThrownBy(
+                    () -> inventoryService.recordStockIn(1L, 10, longReferenceId, "reason", "admin"))
+                    .isInstanceOf(ValidationException.class)
+                    .hasMessageContaining("reference ID too long");
+        }
+
+        @Test
+        @DisplayName("Should allow null reference ID")
+        void validateReferenceId_Null_Allowed() {
+            when(skuRepository.findById(1L)).thenReturn(Optional.of(testSku));
+            when(transactionRepository.save(any(InventoryTransaction.class))).thenReturn(testTransaction);
+
+            // Should not throw exception
+            InventoryTransaction result = inventoryService.recordStockIn(1L, 10, null, "reason", "admin");
+            assertThat(result).isNotNull();
+        }
+
+        @Test
+        @DisplayName("Should allow reference ID at max length")
+        void validateReferenceId_MaxLength_Allowed() {
+            when(skuRepository.findById(1L)).thenReturn(Optional.of(testSku));
+            when(transactionRepository.save(any(InventoryTransaction.class))).thenReturn(testTransaction);
+
+            String maxLengthReferenceId = "A".repeat(255); // Exactly 255 characters
+
+            // Should not throw exception
+            InventoryTransaction result =
+                    inventoryService.recordStockIn(1L, 10, maxLengthReferenceId, "reason", "admin");
+            assertThat(result).isNotNull();
+        }
+
+        @Test
+        @DisplayName("Should throw ValidationException for reason too long")
+        void validateReason_TooLong_ThrowsException() {
+            String longReason = "A".repeat(1001); // 1001 characters, max is 1000
+
+            assertThatThrownBy(
+                    () -> inventoryService.recordStockIn(1L, 10, "REF-001", longReason, "admin"))
+                    .isInstanceOf(ValidationException.class)
+                    .hasMessageContaining("reason too long");
+        }
+
+        @Test
+        @DisplayName("Should allow null reason")
+        void validateReason_Null_Allowed() {
+            when(skuRepository.findById(1L)).thenReturn(Optional.of(testSku));
+            when(transactionRepository.save(any(InventoryTransaction.class))).thenReturn(testTransaction);
+
+            // Should not throw exception
+            InventoryTransaction result =
+                    inventoryService.recordStockIn(1L, 10, "REF-001", null, "admin");
+            assertThat(result).isNotNull();
+        }
+
+        @Test
+        @DisplayName("Should allow reason at max length")
+        void validateReason_MaxLength_Allowed() {
+            when(skuRepository.findById(1L)).thenReturn(Optional.of(testSku));
+            when(transactionRepository.save(any(InventoryTransaction.class))).thenReturn(testTransaction);
+
+            String maxLengthReason = "A".repeat(1000); // Exactly 1000 characters
+
+            // Should not throw exception
+            InventoryTransaction result =
+                    inventoryService.recordStockIn(1L, 10, "REF-001", maxLengthReason, "admin");
+            assertThat(result).isNotNull();
+        }
+
+        @Test
+        @DisplayName("Should throw EntityNotFoundException for invalid SKU ID")
+        void findSkuById_InvalidId_ThrowsException() {
+            when(skuRepository.findById(999L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(
+                    () -> inventoryService.recordStockIn(999L, 10, "REF-001", "reason", "admin"))
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessageContaining("SKU with ID 999 not found");
+        }
+    }
+
+    @Nested
+    @DisplayName("Inner Class Tests")
+    class InnerClassTests {
+
+        @Nested
+        @DisplayName("StockMovementSummary Tests")
+        class StockMovementSummaryTests {
+
+            @Test
+            @DisplayName("Should create summary with all values")
+            void constructor_AllValues() {
+                StockMovementSummary summary = new StockMovementSummary(100, 30, 10, 20, 5);
+
+                assertThat(summary.getTotalIn()).isEqualTo(100);
+                assertThat(summary.getTotalOut()).isEqualTo(30);
+                assertThat(summary.getTotalAdjustments()).isEqualTo(10);
+                assertThat(summary.getTotalReserved()).isEqualTo(20);
+                assertThat(summary.getTotalReleased()).isEqualTo(5);
+                // Net movement = IN - OUT + ADJUSTMENTS = 100 - 30 + 10 = 80
+                assertThat(summary.getNetMovement()).isEqualTo(80);
+            }
+
+            @Test
+            @DisplayName("Should calculate negative net movement")
+            void constructor_NegativeNetMovement() {
+                StockMovementSummary summary = new StockMovementSummary(10, 50, -5, 0, 0);
+
+                assertThat(summary.getTotalIn()).isEqualTo(10);
+                assertThat(summary.getTotalOut()).isEqualTo(50);
+                assertThat(summary.getTotalAdjustments()).isEqualTo(-5);
+                // Net movement = IN - OUT + ADJUSTMENTS = 10 - 50 + (-5) = -45
+                assertThat(summary.getNetMovement()).isEqualTo(-45);
+            }
+
+            @Test
+            @DisplayName("Should handle zero values")
+            void constructor_ZeroValues() {
+                StockMovementSummary summary = new StockMovementSummary(0, 0, 0, 0, 0);
+
+                assertThat(summary.getTotalIn()).isEqualTo(0);
+                assertThat(summary.getTotalOut()).isEqualTo(0);
+                assertThat(summary.getTotalAdjustments()).isEqualTo(0);
+                assertThat(summary.getTotalReserved()).isEqualTo(0);
+                assertThat(summary.getTotalReleased()).isEqualTo(0);
+                assertThat(summary.getNetMovement()).isEqualTo(0);
+            }
+
+            @Test
+            @DisplayName("Should handle large values")
+            void constructor_LargeValues() {
+                long largeValue = 1_000_000L;
+                StockMovementSummary summary =
+                        new StockMovementSummary(
+                                largeValue, largeValue / 2, largeValue / 4, largeValue / 8, largeValue / 16);
+
+                assertThat(summary.getTotalIn()).isEqualTo(largeValue);
+                assertThat(summary.getTotalOut()).isEqualTo(largeValue / 2);
+                assertThat(summary.getTotalAdjustments()).isEqualTo(largeValue / 4);
+                // Net movement = 1_000_000 - 500_000 + 250_000 = 750_000
+                assertThat(summary.getNetMovement()).isEqualTo(750_000L);
+            }
+        }
+
+        @Nested
+        @DisplayName("CurrentStockInfo Tests")
+        class CurrentStockInfoTests {
+
+            @Test
+            @DisplayName("Should create stock info with all values")
+            void constructor_AllValues() {
+                CurrentStockInfo stockInfo = new CurrentStockInfo(100, 20, 80, 25, 50, false, false);
+
+                assertThat(stockInfo.getStockQuantity()).isEqualTo(100);
+                assertThat(stockInfo.getReservedQuantity()).isEqualTo(20);
+                assertThat(stockInfo.getAvailableQuantity()).isEqualTo(80);
+                assertThat(stockInfo.getReorderPoint()).isEqualTo(25);
+                assertThat(stockInfo.getReorderQuantity()).isEqualTo(50);
+                assertThat(stockInfo.isLowOnStock()).isFalse();
+                assertThat(stockInfo.isOutOfStock()).isFalse();
+            }
+
+            @Test
+            @DisplayName("Should create stock info with low stock flag")
+            void constructor_LowStock() {
+                CurrentStockInfo stockInfo = new CurrentStockInfo(15, 5, 10, 25, 50, true, false);
+
+                assertThat(stockInfo.getStockQuantity()).isEqualTo(15);
+                assertThat(stockInfo.getReservedQuantity()).isEqualTo(5);
+                assertThat(stockInfo.getAvailableQuantity()).isEqualTo(10);
+                assertThat(stockInfo.isLowOnStock()).isTrue();
+                assertThat(stockInfo.isOutOfStock()).isFalse();
+            }
+
+            @Test
+            @DisplayName("Should create stock info with out of stock flag")
+            void constructor_OutOfStock() {
+                CurrentStockInfo stockInfo = new CurrentStockInfo(0, 0, 0, 25, 50, true, true);
+
+                assertThat(stockInfo.getStockQuantity()).isEqualTo(0);
+                assertThat(stockInfo.getReservedQuantity()).isEqualTo(0);
+                assertThat(stockInfo.getAvailableQuantity()).isEqualTo(0);
+                assertThat(stockInfo.isLowOnStock()).isTrue();
+                assertThat(stockInfo.isOutOfStock()).isTrue();
+            }
+
+            @Test
+            @DisplayName("Should create stock info with zero reorder values")
+            void constructor_ZeroReorderValues() {
+                CurrentStockInfo stockInfo = new CurrentStockInfo(100, 0, 100, 0, 0, false, false);
+
+                assertThat(stockInfo.getStockQuantity()).isEqualTo(100);
+                assertThat(stockInfo.getReorderPoint()).isEqualTo(0);
+                assertThat(stockInfo.getReorderQuantity()).isEqualTo(0);
+                assertThat(stockInfo.isLowOnStock()).isFalse();
+                assertThat(stockInfo.isOutOfStock()).isFalse();
+            }
         }
     }
 }

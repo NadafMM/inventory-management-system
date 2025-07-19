@@ -1,6 +1,7 @@
 package com.inventorymanagement.category.model;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -89,7 +90,7 @@ public final class CategoryMapper {
      */
     public static void updateEntityFromDto(Category category, CategoryDto dto) {
         if (category == null || dto == null) {
-            return;
+            throw new IllegalArgumentException("Category and CategoryDto must not be null");
         }
 
         category.setName(dto.getName());
@@ -110,7 +111,10 @@ public final class CategoryMapper {
             return null;
         }
 
-        return categories.stream().map(CategoryMapper::toDto).collect(Collectors.toList());
+        return categories.stream()
+                .filter(Objects::nonNull)
+                .map(CategoryMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     /**

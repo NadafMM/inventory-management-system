@@ -25,10 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 @DisplayName("CategoryRepository Comprehensive Functional Tests")
 class CategoryRepositoryTest extends BaseIntegrationTest {
 
-    @Autowired
-    private CategoryRepository categoryRepository;
-    @Autowired
-    private EntityManager entityManager;
+    @Autowired private CategoryRepository categoryRepository;
+    @Autowired private EntityManager entityManager;
 
     private Category rootCategory;
     private Category childCategory;
@@ -283,7 +281,7 @@ class CategoryRepositoryTest extends BaseIntegrationTest {
             entityManager.flush();
             entityManager.clear();
 
-            restore
+            // restore
             LocalDateTime restoreTime = LocalDateTime.now();
             int restored = categoryRepository.restoreById(grandchildCategory.getId(), restoreTime);
             entityManager.flush();

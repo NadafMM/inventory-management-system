@@ -2,6 +2,7 @@ package com.inventorymanagement.product.model;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -104,7 +105,7 @@ public final class ProductMapper {
      */
     public static void updateEntityFromDto(Product product, ProductDto dto) {
         if (product == null || dto == null) {
-            return;
+            throw new IllegalArgumentException("Product and ProductDto must not be null");
         }
 
         product.setName(dto.getName());
@@ -130,7 +131,10 @@ public final class ProductMapper {
             return null;
         }
 
-        return products.stream().map(ProductMapper::toDto).collect(Collectors.toList());
+        return products.stream()
+                .filter(Objects::nonNull)
+                .map(ProductMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -144,7 +148,10 @@ public final class ProductMapper {
             return null;
         }
 
-        return dtos.stream().map(ProductMapper::toEntity).collect(Collectors.toList());
+        return dtos.stream()
+                .filter(Objects::nonNull)
+                .map(ProductMapper::toEntity)
+                .collect(Collectors.toList());
     }
 
     /**

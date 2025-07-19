@@ -53,18 +53,14 @@ import org.springframework.test.web.servlet.MockMvc;
 @DisplayName("SkuController Tests")
 class SkuControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
-    @MockBean
-    private SkuService skuService;
+    @MockBean private SkuService skuService;
 
-    @MockBean
-    private InventoryService inventoryService;
-    
+    @MockBean private InventoryService inventoryService;
+
     private SkuDto testSku;
     private SkuDto testSku2;
 

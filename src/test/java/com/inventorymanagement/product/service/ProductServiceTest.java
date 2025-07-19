@@ -46,14 +46,11 @@ import org.springframework.data.domain.Pageable;
 @DisplayName("ProductService Tests")
 class ProductServiceTest extends BaseUnitTest {
 
-    @Mock
-    private ProductRepository productRepository;
+    @Mock private ProductRepository productRepository;
 
-    @Mock
-    private CategoryRepository categoryRepository;
+    @Mock private CategoryRepository categoryRepository;
 
-    @InjectMocks
-    private ProductService productService;
+    @InjectMocks private ProductService productService;
 
     private Product testProduct;
     private ProductDto testProductDto;
@@ -102,7 +99,6 @@ class ProductServiceTest extends BaseUnitTest {
 
             when(productRepository.findById(999L)).thenReturn(Optional.empty());
 
- &Then
             assertThatThrownBy(() -> productService.getProductById(999L))
                     .isInstanceOf(EntityNotFoundException.class)
                     .hasMessageContaining("Product with ID 999 not found");
@@ -145,7 +141,6 @@ class ProductServiceTest extends BaseUnitTest {
 
             when(categoryRepository.findById(999L)).thenReturn(Optional.empty());
 
- &Then
             assertThatThrownBy(() -> productService.createProduct(newProductDto))
                     .isInstanceOf(EntityNotFoundException.class)
                     .hasMessageContaining("Category with ID 999 not found");
@@ -164,7 +159,6 @@ class ProductServiceTest extends BaseUnitTest {
             when(productRepository.findByNameAndCategoryId("Test Product", 1L))
                     .thenReturn(Optional.of(testProduct));
 
- &Then
             assertThatExceptionOfType(ValidationException.class)
                     .isThrownBy(() -> productService.createProduct(newProductDto))
                     .withMessageContaining("already exists");
@@ -206,7 +200,6 @@ class ProductServiceTest extends BaseUnitTest {
 
             when(productRepository.findById(999L)).thenReturn(Optional.empty());
 
- &Then
             assertThatThrownBy(() -> productService.updateProduct(999L, updateDto))
                     .isInstanceOf(EntityNotFoundException.class)
                     .hasMessageContaining("Product with ID 999 not found");
@@ -226,7 +219,6 @@ class ProductServiceTest extends BaseUnitTest {
             when(productRepository.existsByNameAndCategoryIdExcludingId("Duplicate Name", 1L, 1L))
                     .thenReturn(true);
 
- &Then
             assertThatExceptionOfType(ValidationException.class)
                     .isThrownBy(() -> productService.updateProduct(1L, updateDto))
                     .withMessageContaining("already exists");
@@ -268,7 +260,6 @@ class ProductServiceTest extends BaseUnitTest {
 
             when(productRepository.findById(1L)).thenReturn(Optional.of(productWithSkus));
 
- &Then
             assertThatExceptionOfType(BusinessException.class)
                     .isThrownBy(() -> productService.deleteProduct(1L))
                     .withMessageContaining("Cannot delete");
@@ -327,7 +318,6 @@ class ProductServiceTest extends BaseUnitTest {
 
             when(categoryRepository.findById(nonExistentCategoryId)).thenReturn(Optional.empty());
 
- &Then
             assertThatThrownBy(
                     () -> productService.getProductsByCategory(nonExistentCategoryId, pageable))
                     .isInstanceOf(EntityNotFoundException.class)
@@ -543,7 +533,6 @@ class ProductServiceTest extends BaseUnitTest {
             invalidDto.setName("Invalid/Product\\Name|With<>Special");
             invalidDto.setCategoryId(1L);
 
- &Then
             assertThatThrownBy(() -> productService.createProduct(invalidDto))
                     .isInstanceOf(ValidationException.class)
                     .hasMessageContaining("invalid characters");
@@ -557,7 +546,6 @@ class ProductServiceTest extends BaseUnitTest {
             longNameDto.setName("A".repeat(256)); // Assuming max length is 255
             longNameDto.setCategoryId(1L);
 
- &Then
             assertThatThrownBy(() -> productService.createProduct(longNameDto))
                     .isInstanceOf(ValidationException.class)
                     .hasMessageContaining("too long");
@@ -571,7 +559,6 @@ class ProductServiceTest extends BaseUnitTest {
             emptyNameDto.setName("");
             emptyNameDto.setCategoryId(1L);
 
- &Then
             assertThatThrownBy(() -> productService.createProduct(emptyNameDto))
                     .isInstanceOf(ValidationException.class)
                     .hasMessageContaining("cannot be empty");
@@ -585,7 +572,6 @@ class ProductServiceTest extends BaseUnitTest {
             nullNameDto.setName(null);
             nullNameDto.setCategoryId(1L);
 
- &Then
             assertThatThrownBy(() -> productService.createProduct(nullNameDto))
                     .isInstanceOf(ValidationException.class)
                     .hasMessageContaining("name cannot be null");
@@ -600,7 +586,6 @@ class ProductServiceTest extends BaseUnitTest {
             longBrandDto.setBrand("A".repeat(101)); // Assuming max length is 100
             longBrandDto.setCategoryId(1L);
 
- &Then
             assertThatThrownBy(() -> productService.createProduct(longBrandDto))
                     .isInstanceOf(ValidationException.class)
                     .hasMessageContaining("too long");
@@ -653,7 +638,6 @@ class ProductServiceTest extends BaseUnitTest {
             longDescDto.setDescription("A".repeat(5001)); // Assuming max length is 5000
             longDescDto.setCategoryId(1L);
 
- &Then
             assertThatThrownBy(() -> productService.createProduct(longDescDto))
                     .isInstanceOf(ValidationException.class)
                     .hasMessageContaining("description too long");
@@ -737,7 +721,6 @@ class ProductServiceTest extends BaseUnitTest {
 
             when(categoryRepository.findById(1L)).thenReturn(Optional.of(inactiveCategory));
 
- &Then
             assertThatThrownBy(() -> productService.createProduct(productDto))
                     .isInstanceOf(ValidationException.class)
                     .hasMessageContaining("inactive category");
@@ -759,7 +742,7 @@ class ProductServiceTest extends BaseUnitTest {
 
             when(categoryRepository.findById(1L)).thenReturn(Optional.of(deepCategory));
 
- &Then - Assuming there 's a business rule about maximum category depth
+            // Assuming there 's a business rule about maximum category depth
             assertThatThrownBy(() -> productService.createProduct(productDto))
                     .isInstanceOf(ValidationException.class)
                     .hasMessageContaining("category depth");
@@ -776,7 +759,6 @@ class ProductServiceTest extends BaseUnitTest {
             when(productRepository.findByNameAndCategoryId("iPhone 15", 1L))
                     .thenReturn(Optional.of(testProduct));
 
- &Then
             assertThatThrownBy(() -> productService.createProduct(duplicateDto))
                     .isInstanceOf(ValidationException.class)
                     .hasMessageContaining("already exists");
@@ -853,7 +835,7 @@ class ProductServiceTest extends BaseUnitTest {
             // Simulate product with dependencies that prevent deletion
             when(productRepository.findById(1L)).thenReturn(Optional.of(productWithOrderHistory));
 
- &Then - This test verifies the delete operation can handle business rule validation
+            // This test verifies the delete operation can handle business rule validation
             // The actual business rules are implementation-specific and would be tested with real
             // constraints
             productService.deleteProduct(1L);
@@ -882,7 +864,6 @@ class ProductServiceTest extends BaseUnitTest {
             when(productRepository.save(any(Product.class)))
                     .thenThrow(new RuntimeException("Database constraint violation"));
 
- &Then
             assertThatThrownBy(() -> productService.createProduct(productDto))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("Database constraint violation");
@@ -902,7 +883,6 @@ class ProductServiceTest extends BaseUnitTest {
             when(productRepository.save(any(Product.class)))
                     .thenThrow(new RuntimeException("Simulated transaction failure"));
 
- &Then
             assertThatThrownBy(() -> productService.createProduct(productDto))
                     .isInstanceOf(RuntimeException.class);
         }
@@ -955,13 +935,13 @@ class ProductServiceTest extends BaseUnitTest {
         @Test
         @DisplayName("Should handle large batch operations")
         void shouldHandleLargeBatchOperations() {
-            -Simulate bulk operations
+            // Simulate bulk operations
             when(categoryRepository.findById(1L)).thenReturn(Optional.of(testCategory));
             when(productRepository.findByNameAndCategoryId(anyString(), eq(1L)))
                     .thenReturn(Optional.empty());
             when(productRepository.save(any(Product.class))).thenReturn(testProduct);
 
-            -Create multiple products in sequence
+            // Create multiple products in sequence
             for (int i = 0; i < 100; i++) {
                 ProductDto productDto = new ProductDto();
                 productDto.setName("Bulk Product " + i);
@@ -998,7 +978,7 @@ class ProductServiceTest extends BaseUnitTest {
         @Test
         @DisplayName("Should handle null search queries")
         void shouldHandleNullSearchQueries() {
- &Then
+
             assertThatThrownBy(
                     () -> productService.searchProductsByNameOrDescription(null, PageRequest.of(0, 10)))
                     .isInstanceOf(ValidationException.class)
@@ -1138,7 +1118,7 @@ class ProductServiceTest extends BaseUnitTest {
         @Test
         @DisplayName("Should handle zero page size")
         void shouldHandleZeroPageSize() {
- &Then
+
             assertThatThrownBy(() -> PageRequest.of(0, 0))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Page size must not be less than one");

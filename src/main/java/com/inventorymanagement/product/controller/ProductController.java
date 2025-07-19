@@ -52,8 +52,7 @@ public class ProductController {
 
     private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
 
-    @Autowired
-    private ProductService productService;
+    @Autowired private ProductService productService;
 
     // ===== CRUD OPERATIONS =====
 

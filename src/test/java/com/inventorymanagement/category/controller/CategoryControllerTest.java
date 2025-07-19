@@ -25,6 +25,7 @@ import com.inventorymanagement.common.exception.BusinessException;
 import com.inventorymanagement.common.exception.EntityNotFoundException;
 import com.inventorymanagement.common.exception.GlobalExceptionHandler;
 import com.inventorymanagement.common.exception.ValidationException;
+import com.inventorymanagement.common.model.BulkOperationRequest;
 import com.inventorymanagement.common.model.PagedResponse;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,12 +56,9 @@ import org.springframework.test.web.servlet.MockMvc;
 @DisplayName("CategoryController Comprehensive Tests")
 class CategoryControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private ObjectMapper objectMapper;
-    @MockBean
-    private CategoryService categoryService;
+    @Autowired private MockMvc mockMvc;
+    @Autowired private ObjectMapper objectMapper;
+    @MockBean private CategoryService categoryService;
     private CategoryDto testCategory;
     private CategoryDto childCategory;
     private CategoryDto invalidCategory;
@@ -126,12 +124,12 @@ class CategoryControllerTest {
         @Test
         @DisplayName("Should handle validation errors")
         void createCategory_ValidationError() throws Exception {
-            Spring validation fails on request body, service is never called
-                    mockMvc
-          .perform(
-                    post("/v1/categories")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(toJson(invalidCategory)))
+            // Spring validation fails on request body, service is never called
+            mockMvc
+                    .perform(
+                            post("/v1/categories")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(toJson(invalidCategory)))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Validation failed for one or more fields"));
 
@@ -706,6 +704,370 @@ class CategoryControllerTest {
     }
 
     @Nested
+    @DisplayName("Bulk Operations Tests")
+    class BulkOperationsTests {
+
+        @Test
+        @DisplayName("Should handle bulk creation successfully")
+        void bulkCreateCategoriesSuccess() throws Exception {
+            List<CategoryDto> categoriesToCreate =
+                    Arrays.asList(
+                            createValidCategoryDto("Category1", "Description1"),
+                            createValidCategoryDto("Category2", "Description2"));
+
+            BulkOperationRequest<CategoryDto> bulkRequest =
+                    new BulkOperationRequest<>(categoriesToCreate);
+
+            CategoryDto createdCategory1 = createValidCategoryDto("Category1", "Description1");
+            createdCategory1.setId(1L);
+            CategoryDto createdCategory2 = createValidCategoryDto("Category2", "Description2");
+            createdCategory2.setId(2L);
+
+            when(categoryService.createCategory(any(CategoryDto.class)))
+                    .thenReturn(createdCategory1)
+                    .thenReturn(createdCategory2);
+
+            mockMvc
+                    .perform(
+                            post("/v1/categories/bulk")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(toJson(bulkRequest)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.message").value("Bulk operation completed"))
+                    .andExpect(jsonPath("$.data.total_items").value(2))
+                    .andExpect(jsonPath("$.data.successful_items").value(2))
+                    .andExpect(jsonPath("$.data.failed_items").value(0));
+
+            verify(categoryService, times(2)).createCategory(any(CategoryDto.class));
+        }
+
+        @Test
+        @DisplayName("Should handle bulk creation with partial failures")
+        void bulkCreateCategoriesPartialFailure() throws Exception {
+            List<CategoryDto> categoriesToCreate =
+                    Arrays.asList(
+                            createValidCategoryDto("Category1", "Description1"),
+                            createValidCategoryDto("Category2", "Description2"));
+
+            BulkOperationRequest<CategoryDto> bulkRequest =
+                    new BulkOperationRequest<>(categoriesToCreate);
+
+            CategoryDto createdCategory1 = createValidCategoryDto("Category1", "Description1");
+            createdCategory1.setId(1L);
+
+            when(categoryService.createCategory(any(CategoryDto.class)))
+                    .thenReturn(createdCategory1)
+                    .thenThrow(new ValidationException("name", "Category name already exists"));
+
+            mockMvc
+                    .perform(
+                            post("/v1/categories/bulk")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(toJson(bulkRequest)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.message").value("Bulk operation completed"))
+                    .andExpect(jsonPath("$.data.total_items").value(2))
+                    .andExpect(jsonPath("$.data.successful_items").value(1))
+                    .andExpect(jsonPath("$.data.failed_items").value(1));
+
+            verify(categoryService, times(2)).createCategory(any(CategoryDto.class));
+        }
+
+        @Test
+        @DisplayName("Should handle bulk creation with continue on error disabled")
+        void bulkCreateCategoriesStopOnFirstError() throws Exception {
+            List<CategoryDto> categoriesToCreate =
+                    Arrays.asList(
+                            createValidCategoryDto("Category1", "Description1"),
+                            createValidCategoryDto("Category2", "Description2"));
+
+            BulkOperationRequest.BulkOperationOptions options =
+                    new BulkOperationRequest.BulkOperationOptions();
+            options.setContinueOnError(false);
+
+            BulkOperationRequest<CategoryDto> bulkRequest =
+                    new BulkOperationRequest<>(categoriesToCreate, options);
+
+            when(categoryService.createCategory(any(CategoryDto.class)))
+                    .thenThrow(new ValidationException("name", "Category name already exists"));
+
+            mockMvc
+                    .perform(
+                            post("/v1/categories/bulk")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(toJson(bulkRequest)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.message").value("Bulk operation completed"))
+                    .andExpect(jsonPath("$.data.total_items").value(1))
+                    .andExpect(jsonPath("$.data.successful_items").value(0))
+                    .andExpect(jsonPath("$.data.failed_items").value(1));
+
+            verify(categoryService, times(1)).createCategory(any(CategoryDto.class));
+        }
+
+        @Test
+        @DisplayName("Should handle bulk update successfully")
+        void bulkUpdateCategoriesSuccess() throws Exception {
+            CategoryDto categoryToUpdate1 =
+                    createValidCategoryDto("Updated Category1", "Updated Description1");
+            categoryToUpdate1.setId(1L);
+            CategoryDto categoryToUpdate2 =
+                    createValidCategoryDto("Updated Category2", "Updated Description2");
+            categoryToUpdate2.setId(2L);
+
+            List<CategoryDto> categoriesToUpdate = Arrays.asList(categoryToUpdate1, categoryToUpdate2);
+            BulkOperationRequest<CategoryDto> bulkRequest =
+                    new BulkOperationRequest<>(categoriesToUpdate);
+
+            when(categoryService.updateCategory(eq(1L), any(CategoryDto.class)))
+                    .thenReturn(categoryToUpdate1);
+            when(categoryService.updateCategory(eq(2L), any(CategoryDto.class)))
+                    .thenReturn(categoryToUpdate2);
+
+            mockMvc
+                    .perform(
+                            put("/v1/categories/bulk")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(toJson(bulkRequest)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.message").value("Bulk operation completed"))
+                    .andExpect(jsonPath("$.data.total_items").value(2))
+                    .andExpect(jsonPath("$.data.successful_items").value(2))
+                    .andExpect(jsonPath("$.data.failed_items").value(0));
+
+            verify(categoryService, times(1)).updateCategory(eq(1L), any(CategoryDto.class));
+            verify(categoryService, times(1)).updateCategory(eq(2L), any(CategoryDto.class));
+        }
+
+        @Test
+        @DisplayName("Should handle bulk update with missing IDs")
+        void bulkUpdateCategoriesMissingIds() throws Exception {
+            CategoryDto categoryWithoutId = createValidCategoryDto("Category", "Description");
+            // categoryWithoutId.setId(null); - ID is null
+
+            List<CategoryDto> categoriesToUpdate = List.of(categoryWithoutId);
+            BulkOperationRequest<CategoryDto> bulkRequest =
+                    new BulkOperationRequest<>(categoriesToUpdate);
+
+            mockMvc
+                    .perform(
+                            put("/v1/categories/bulk")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(toJson(bulkRequest)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.message").value("Bulk operation completed"))
+                    .andExpect(jsonPath("$.data.total_items").value(1))
+                    .andExpect(jsonPath("$.data.successful_items").value(0))
+                    .andExpect(jsonPath("$.data.failed_items").value(1))
+                    .andExpect(jsonPath("$.data.errors[0].error_code").value("UPDATE_FAILED"));
+
+            verify(categoryService, never()).updateCategory(anyLong(), any(CategoryDto.class));
+        }
+
+        @Test
+        @DisplayName("Should handle bulk update with partial failures")
+        void bulkUpdateCategoriesPartialFailure() throws Exception {
+            CategoryDto categoryToUpdate1 =
+                    createValidCategoryDto("Updated Category1", "Updated Description1");
+            categoryToUpdate1.setId(1L);
+            CategoryDto categoryToUpdate2 =
+                    createValidCategoryDto("Updated Category2", "Updated Description2");
+            categoryToUpdate2.setId(2L);
+
+            List<CategoryDto> categoriesToUpdate = Arrays.asList(categoryToUpdate1, categoryToUpdate2);
+            BulkOperationRequest<CategoryDto> bulkRequest =
+                    new BulkOperationRequest<>(categoriesToUpdate);
+
+            when(categoryService.updateCategory(eq(1L), any(CategoryDto.class)))
+                    .thenReturn(categoryToUpdate1);
+            when(categoryService.updateCategory(eq(2L), any(CategoryDto.class)))
+                    .thenThrow(new EntityNotFoundException("Category", 2L));
+
+            mockMvc
+                    .perform(
+                            put("/v1/categories/bulk")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(toJson(bulkRequest)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.message").value("Bulk operation completed"))
+                    .andExpect(jsonPath("$.data.total_items").value(2))
+                    .andExpect(jsonPath("$.data.successful_items").value(1))
+                    .andExpect(jsonPath("$.data.failed_items").value(1));
+
+            verify(categoryService, times(1)).updateCategory(eq(1L), any(CategoryDto.class));
+            verify(categoryService, times(1)).updateCategory(eq(2L), any(CategoryDto.class));
+        }
+
+        @Test
+        @DisplayName("Should validate bulk request")
+        void bulkCreateCategoriesInvalidRequest() throws Exception {
+            BulkOperationRequest<CategoryDto> bulkRequest =
+                    new BulkOperationRequest<>(Collections.emptyList());
+
+            mockMvc
+                    .perform(
+                            post("/v1/categories/bulk")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(toJson(bulkRequest)))
+                    .andExpect(status().isBadRequest());
+
+            verify(categoryService, never()).createCategory(any(CategoryDto.class));
+        }
+
+        @Test
+        @DisplayName("Should handle bulk create with null options gracefully")
+        void bulkCreateCategoriesWithNullOptions() throws Exception {
+            List<CategoryDto> categoriesToCreate =
+                    List.of(createValidCategoryDto("Category1", "Description1"));
+
+            BulkOperationRequest<CategoryDto> bulkRequest =
+                    new BulkOperationRequest<>(categoriesToCreate);
+            bulkRequest.setOptions(null); // Explicitly set null options
+
+            CategoryDto createdCategory1 = createValidCategoryDto("Category1", "Description1");
+            createdCategory1.setId(1L);
+
+            when(categoryService.createCategory(any(CategoryDto.class))).thenReturn(createdCategory1);
+
+            mockMvc
+                    .perform(
+                            post("/v1/categories/bulk")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(toJson(bulkRequest)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.data.total_items").value(1))
+                    .andExpect(jsonPath("$.data.successful_items").value(1))
+                    .andExpect(jsonPath("$.data.failed_items").value(0));
+
+            verify(categoryService, times(1)).createCategory(any(CategoryDto.class));
+        }
+
+        @Test
+        @DisplayName("Should handle bulk update with null options gracefully")
+        void bulkUpdateCategoriesWithNullOptions() throws Exception {
+            CategoryDto categoryToUpdate =
+                    createValidCategoryDto("Updated Category", "Updated Description");
+            categoryToUpdate.setId(1L);
+
+            List<CategoryDto> categoriesToUpdate = List.of(categoryToUpdate);
+            BulkOperationRequest<CategoryDto> bulkRequest =
+                    new BulkOperationRequest<>(categoriesToUpdate);
+            bulkRequest.setOptions(null); // Explicitly set null options
+
+            when(categoryService.updateCategory(eq(1L), any(CategoryDto.class)))
+                    .thenReturn(categoryToUpdate);
+
+            mockMvc
+                    .perform(
+                            put("/v1/categories/bulk")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(toJson(bulkRequest)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.data.total_items").value(1))
+                    .andExpect(jsonPath("$.data.successful_items").value(1))
+                    .andExpect(jsonPath("$.data.failed_items").value(0));
+
+            verify(categoryService, times(1)).updateCategory(eq(1L), any(CategoryDto.class));
+        }
+
+        @Test
+        @DisplayName("Should handle bulk update with continue on error disabled")
+        void bulkUpdateCategoriesStopOnFirstError() throws Exception {
+            CategoryDto categoryToUpdate1 = createValidCategoryDto("Category1", "Description1");
+            categoryToUpdate1.setId(1L);
+            CategoryDto categoryToUpdate2 = createValidCategoryDto("Category2", "Description2");
+            categoryToUpdate2.setId(2L);
+
+            List<CategoryDto> categoriesToUpdate = Arrays.asList(categoryToUpdate1, categoryToUpdate2);
+
+            BulkOperationRequest.BulkOperationOptions options =
+                    new BulkOperationRequest.BulkOperationOptions();
+            options.setContinueOnError(false);
+
+            BulkOperationRequest<CategoryDto> bulkRequest =
+                    new BulkOperationRequest<>(categoriesToUpdate, options);
+
+            when(categoryService.updateCategory(eq(1L), any(CategoryDto.class)))
+                    .thenThrow(new EntityNotFoundException("Category", 1L));
+
+            mockMvc
+                    .perform(
+                            put("/v1/categories/bulk")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(toJson(bulkRequest)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.data.total_items").value(1))
+                    .andExpect(jsonPath("$.data.successful_items").value(0))
+                    .andExpect(jsonPath("$.data.failed_items").value(1));
+
+            verify(categoryService, times(1)).updateCategory(eq(1L), any(CategoryDto.class));
+            verify(categoryService, never()).updateCategory(eq(2L), any(CategoryDto.class));
+        }
+
+        @Test
+        @DisplayName("Should handle empty bulk delete request")
+        void bulkDeleteCategoriesEmptyList() throws Exception {
+            List<Long> emptyIds = Collections.emptyList();
+
+            mockMvc
+                    .perform(
+                            delete("/v1/categories/bulk")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(toJson(emptyIds)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.data.total_items").value(0))
+                    .andExpect(jsonPath("$.data.successful_items").value(0))
+                    .andExpect(jsonPath("$.data.failed_items").value(0));
+
+            verify(categoryService, never()).deleteCategory(anyLong());
+        }
+
+        @Test
+        @DisplayName("Should handle bulk delete with partial failures")
+        void bulkDeleteCategoriesPartialFailure() throws Exception {
+            List<Long> idsToDelete = Arrays.asList(1L, 2L, 3L);
+
+            doNothing().when(categoryService).deleteCategory(1L);
+            doThrow(new EntityNotFoundException("Category", 2L)).when(categoryService).deleteCategory(2L);
+            doNothing().when(categoryService).deleteCategory(3L);
+
+            mockMvc
+                    .perform(
+                            delete("/v1/categories/bulk")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(toJson(idsToDelete)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.data.total_items").value(3))
+                    .andExpect(jsonPath("$.data.successful_items").value(2))
+                    .andExpect(jsonPath("$.data.failed_items").value(1))
+                    .andExpect(jsonPath("$.data.errors[0].error_code").value("DELETION_FAILED"));
+
+            verify(categoryService, times(1)).deleteCategory(1L);
+            verify(categoryService, times(1)).deleteCategory(2L);
+            verify(categoryService, times(1)).deleteCategory(3L);
+        }
+
+        private CategoryDto createValidCategoryDto(String name, String description) {
+            CategoryDto dto = new CategoryDto();
+            dto.setName(name);
+            dto.setDescription(description);
+            dto.setIsActive(true);
+            return dto;
+        }
+    }
+
+    @Nested
     @DisplayName("Edge Cases and Error Scenarios")
     class EdgeCasesTests {
 
@@ -755,12 +1117,12 @@ class CategoryControllerTest {
             nullCategory.setName(null);
             nullCategory.setDescription(null);
 
-            Spring validation fails due to null name, service is never called
-                    mockMvc
-          .perform(
-                    post("/v1/categories")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(toJson(nullCategory)))
+            // Spring validation fails due to null name, service is never called
+            mockMvc
+                    .perform(
+                            post("/v1/categories")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(toJson(nullCategory)))
                     .andExpect(status().isBadRequest());
 
             // Verify that service was NOT called due to validation failure

@@ -54,11 +54,9 @@ public class SkuController {
 
     private static final Logger logger = LoggerFactory.getLogger(SkuController.class);
 
-    @Autowired
-    private SkuService skuService;
+    @Autowired private SkuService skuService;
 
-    @Autowired
-    private InventoryService inventoryService;
+    @Autowired private InventoryService inventoryService;
 
     // ===== CRUD OPERATIONS =====
 

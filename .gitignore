@@ -19,6 +19,7 @@ logs/
 *.zip
 *.tar.gz
 *.rar
+.env
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
@@ -53,6 +54,8 @@ tasks/
 web-bundles/
 docs/
 
+.env.example
+
 
 # Eclipse
 .apt_generated
@@ -73,10 +76,11 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-# VS Code
-
-# Database files
-*.db
+# Database files (H2 runtime files)
+data/*.db
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
 *.db-journal
 *.db-wal
 *.db-shm
@@ -109,6 +113,7 @@ spring-boot-*.pid
 .checkstyle
 .pmd
 .spotbugs
+/target/site/
 
 # Application logs
 application.log
@@ -125,10 +130,7 @@ TEST-*.xml
 jacoco.exec
 /coverage/
 
-# Dependency directories
-node_modules/
-
-# Environment variables
+# Environment variables (keep .env.example)
 .env
 .env.local
 .env.*.local
@@ -139,8 +141,10 @@ pids
 *.seed
 *.pid.lock
 
-# Optional npm cache directory
-.npm
+# Generated directories (tools/frameworks not related to main project)
+.bmad-core/
+.mockups/
+web-bundles/
 
 # Optional eslint cache
 .eslintcache

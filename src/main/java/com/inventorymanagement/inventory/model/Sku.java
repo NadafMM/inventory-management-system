@@ -136,7 +136,9 @@ public class Sku extends BaseAuditEntity {
      * Updates the available quantity based on current stock and reserved quantities.
      */
     private void updateAvailableQuantity() {
-        this.availableQuantity = Math.max(0, stockQuantity - reservedQuantity);
+        Integer currentStock = stockQuantity != null ? stockQuantity : 0;
+        Integer currentReserved = reservedQuantity != null ? reservedQuantity : 0;
+        this.availableQuantity = Math.max(0, currentStock - currentReserved);
     }
 
     /**
