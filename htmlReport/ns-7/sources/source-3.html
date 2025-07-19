@@ -1,0 +1,514 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > GlobalExceptionHandler</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.inventorymanagement.common.exception</a>
+</div>
+
+<h1>Coverage Summary for Class: GlobalExceptionHandler (com.inventorymanagement.common.exception)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">GlobalExceptionHandler</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (9/18)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    25%
+  </span>
+  <span class="absValue">
+    (3/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    33.1%
+  </span>
+  <span class="absValue">
+    (58/175)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.inventorymanagement.common.exception;
+&nbsp;
+&nbsp;import com.inventorymanagement.common.model.ErrorResponse;
+&nbsp;import jakarta.servlet.http.HttpServletRequest;
+&nbsp;import jakarta.validation.ConstraintViolation;
+&nbsp;import jakarta.validation.ConstraintViolationException;
+&nbsp;import java.sql.SQLException;
+&nbsp;import java.util.Set;
+&nbsp;import java.util.UUID;
+&nbsp;import org.slf4j.Logger;
+&nbsp;import org.slf4j.LoggerFactory;
+&nbsp;import org.slf4j.MDC;
+&nbsp;import org.springframework.dao.DataAccessException;
+&nbsp;import org.springframework.dao.DataIntegrityViolationException;
+&nbsp;import org.springframework.http.HttpStatus;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.http.converter.HttpMessageNotReadableException;
+&nbsp;import org.springframework.validation.FieldError;
+&nbsp;import org.springframework.web.HttpRequestMethodNotSupportedException;
+&nbsp;import org.springframework.web.bind.MethodArgumentNotValidException;
+&nbsp;import org.springframework.web.bind.MissingServletRequestParameterException;
+&nbsp;import org.springframework.web.bind.annotation.ExceptionHandler;
+&nbsp;import org.springframework.web.bind.annotation.RestControllerAdvice;
+&nbsp;import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+&nbsp;
+&nbsp;/**
+&nbsp; * Global exception handler for the Inventory Management System.
+&nbsp; *
+&nbsp; * &lt;p&gt;This class provides centralized exception handling across the entire application, ensuring
+&nbsp; * consistent error responses and proper logging for all types of exceptions.
+&nbsp; *
+&nbsp; * &lt;p&gt;Key features: - Comprehensive exception coverage (validation, business, system) - Structured
+&nbsp; * error responses with trace information - Contextual logging with MDC for correlation
+&nbsp; *
+&nbsp; * &lt;p&gt;The handler follows industry best practices for error handling and observability, providing
+&nbsp; * detailed information for debugging while maintaining security by not exposing sensitive
+&nbsp; * information in production.
+&nbsp; *
+&nbsp; * @author Inventory Management Team
+&nbsp; * @version 1.0.0
+&nbsp; * @since 2025-01-15
+&nbsp; */
+&nbsp;@RestControllerAdvice
+<b class="fc">&nbsp;public class GlobalExceptionHandler {</b>
+&nbsp;
+<b class="fc">&nbsp;  private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);</b>
+&nbsp;
+&nbsp;  private static final String CORRELATION_ID_HEADER = &quot;X-Correlation-ID&quot;;
+&nbsp;  private static final String DEFAULT_ERROR_MESSAGE = &quot;An unexpected error occurred&quot;;
+&nbsp;
+&nbsp;  /** Handles validation exceptions from Bean Validation (@Valid). */
+&nbsp;  @ExceptionHandler(MethodArgumentNotValidException.class)
+&nbsp;  public ResponseEntity&lt;ErrorResponse&gt; handleValidationException(
+&nbsp;      MethodArgumentNotValidException ex, HttpServletRequest request) {
+&nbsp;
+<b class="nc">&nbsp;    String correlationId = setupErrorContext(request, ex);</b>
+&nbsp;
+<b class="nc">&nbsp;    ErrorResponse errorResponse =</b>
+<b class="nc">&nbsp;        ErrorResponse.validationError(&quot;Validation failed for one or more fields&quot;)</b>
+<b class="nc">&nbsp;            .withPath(request.getRequestURI())</b>
+<b class="nc">&nbsp;            .withMethod(request.getMethod())</b>
+<b class="nc">&nbsp;            .withStatus(HttpStatus.BAD_REQUEST.value())</b>
+<b class="nc">&nbsp;            .withCorrelationId(correlationId);</b>
+&nbsp;
+&nbsp;    // Add field-specific validation errors
+<b class="nc">&nbsp;    for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {</b>
+<b class="nc">&nbsp;      errorResponse.addValidationError(</b>
+<b class="nc">&nbsp;          fieldError.getField(), fieldError.getRejectedValue(), fieldError.getDefaultMessage());</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    addTraceInfo(errorResponse);</b>
+&nbsp;
+<b class="nc">&nbsp;    logger.warn(</b>
+&nbsp;        &quot;Validation error occurred: {} validation errors for request to {}&quot;,
+<b class="nc">&nbsp;        ex.getBindingResult().getErrorCount(),</b>
+<b class="nc">&nbsp;        request.getRequestURI());</b>
+&nbsp;
+<b class="nc">&nbsp;    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /** Handles constraint violation exceptions from method-level validation. */
+&nbsp;  @ExceptionHandler(ConstraintViolationException.class)
+&nbsp;  public ResponseEntity&lt;ErrorResponse&gt; handleConstraintViolationException(
+&nbsp;      ConstraintViolationException ex, HttpServletRequest request) {
+&nbsp;
+<b class="nc">&nbsp;    String correlationId = setupErrorContext(request, ex);</b>
+&nbsp;
+<b class="nc">&nbsp;    ErrorResponse errorResponse =</b>
+<b class="nc">&nbsp;        ErrorResponse.validationError(&quot;Constraint validation failed&quot;)</b>
+<b class="nc">&nbsp;            .withPath(request.getRequestURI())</b>
+<b class="nc">&nbsp;            .withMethod(request.getMethod())</b>
+<b class="nc">&nbsp;            .withStatus(HttpStatus.BAD_REQUEST.value())</b>
+<b class="nc">&nbsp;            .withCorrelationId(correlationId);</b>
+&nbsp;
+&nbsp;    // Add constraint violations
+<b class="nc">&nbsp;    Set&lt;ConstraintViolation&lt;?&gt;&gt; violations = ex.getConstraintViolations();</b>
+<b class="nc">&nbsp;    for (ConstraintViolation&lt;?&gt; violation : violations) {</b>
+<b class="nc">&nbsp;      String fieldName = violation.getPropertyPath().toString();</b>
+<b class="nc">&nbsp;      errorResponse.addValidationError(</b>
+<b class="nc">&nbsp;          fieldName, violation.getInvalidValue(), violation.getMessage());</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    addTraceInfo(errorResponse);</b>
+&nbsp;
+<b class="nc">&nbsp;    logger.warn(</b>
+&nbsp;        &quot;Constraint violation error: {} violations for request to {}&quot;,
+<b class="nc">&nbsp;        violations.size(),</b>
+<b class="nc">&nbsp;        request.getRequestURI());</b>
+&nbsp;
+<b class="nc">&nbsp;    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /** Handles custom validation exceptions. */
+&nbsp;  @ExceptionHandler(ValidationException.class)
+&nbsp;  public ResponseEntity&lt;ErrorResponse&gt; handleCustomValidationException(
+&nbsp;      ValidationException ex, HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    String correlationId = setupErrorContext(request, ex);</b>
+&nbsp;
+<b class="fc">&nbsp;    ErrorResponse errorResponse =</b>
+<b class="fc">&nbsp;        ErrorResponse.validationError(ex.getMessage())</b>
+<b class="fc">&nbsp;            .withPath(request.getRequestURI())</b>
+<b class="fc">&nbsp;            .withMethod(request.getMethod())</b>
+<b class="fc">&nbsp;            .withStatus(HttpStatus.BAD_REQUEST.value())</b>
+<b class="fc">&nbsp;            .withCorrelationId(correlationId);</b>
+&nbsp;
+&nbsp;    // Add field errors if available
+<b class="pc">&nbsp;    if (ex.hasFieldErrors()) {</b>
+<b class="nc">&nbsp;      ex.getFieldErrors()</b>
+<b class="nc">&nbsp;          .forEach((field, message) -&gt; errorResponse.addValidationError(field, null, message));</b>
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    addTraceInfo(errorResponse);</b>
+&nbsp;
+<b class="fc">&nbsp;    logger.warn(</b>
+<b class="fc">&nbsp;        &quot;Custom validation error: {} for request to {}&quot;, ex.getMessage(), request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /** Handles entity not found exceptions. */
+&nbsp;  @ExceptionHandler(EntityNotFoundException.class)
+&nbsp;  public ResponseEntity&lt;ErrorResponse&gt; handleEntityNotFoundException(
+&nbsp;      EntityNotFoundException ex, HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    String correlationId = setupErrorContext(request, ex);</b>
+&nbsp;
+<b class="fc">&nbsp;    ErrorResponse errorResponse =</b>
+<b class="fc">&nbsp;        ErrorResponse.notFound(ex.getEntityType(), ex.getEntityId())</b>
+<b class="fc">&nbsp;            .withPath(request.getRequestURI())</b>
+<b class="fc">&nbsp;            .withMethod(request.getMethod())</b>
+<b class="fc">&nbsp;            .withStatus(HttpStatus.NOT_FOUND.value())</b>
+<b class="fc">&nbsp;            .withCorrelationId(correlationId);</b>
+&nbsp;
+<b class="fc">&nbsp;    addTraceInfo(errorResponse);</b>
+&nbsp;
+<b class="fc">&nbsp;    logger.warn(&quot;Entity not found: {} for request to {}&quot;, ex.getMessage(), request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /** Handles insufficient stock exceptions. */
+&nbsp;  @ExceptionHandler(InsufficientStockException.class)
+&nbsp;  public ResponseEntity&lt;ErrorResponse&gt; handleInsufficientStockException(
+&nbsp;      InsufficientStockException ex, HttpServletRequest request) {
+&nbsp;
+<b class="nc">&nbsp;    String correlationId = setupErrorContext(request, ex);</b>
+&nbsp;
+<b class="nc">&nbsp;    ErrorResponse errorResponse =</b>
+<b class="nc">&nbsp;        ErrorResponse.businessError(&quot;INSUFFICIENT_STOCK&quot;, ex.getMessage())</b>
+<b class="nc">&nbsp;            .withPath(request.getRequestURI())</b>
+<b class="nc">&nbsp;            .withMethod(request.getMethod())</b>
+<b class="nc">&nbsp;            .withStatus(HttpStatus.CONFLICT.value())</b>
+<b class="nc">&nbsp;            .withCorrelationId(correlationId);</b>
+&nbsp;
+<b class="nc">&nbsp;    addTraceInfo(errorResponse);</b>
+&nbsp;
+<b class="nc">&nbsp;    logger.warn(</b>
+<b class="nc">&nbsp;        &quot;Insufficient stock error: {} for request to {}&quot;, ex.getMessage(), request.getRequestURI());</b>
+&nbsp;
+<b class="nc">&nbsp;    return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /** Handles general business exceptions. */
+&nbsp;  @ExceptionHandler(BusinessException.class)
+&nbsp;  public ResponseEntity&lt;ErrorResponse&gt; handleBusinessException(
+&nbsp;      BusinessException ex, HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    String correlationId = setupErrorContext(request, ex);</b>
+&nbsp;
+<b class="fc">&nbsp;    ErrorResponse errorResponse =</b>
+<b class="fc">&nbsp;        ErrorResponse.businessError(ex.getErrorCode(), ex.getMessage())</b>
+<b class="fc">&nbsp;            .withPath(request.getRequestURI())</b>
+<b class="fc">&nbsp;            .withMethod(request.getMethod())</b>
+<b class="fc">&nbsp;            .withStatus(HttpStatus.UNPROCESSABLE_ENTITY.value())</b>
+<b class="fc">&nbsp;            .withCorrelationId(correlationId);</b>
+&nbsp;
+<b class="fc">&nbsp;    addTraceInfo(errorResponse);</b>
+&nbsp;
+<b class="fc">&nbsp;    logger.warn(</b>
+<b class="fc">&nbsp;        &quot;Business exception: {} for request to {}&quot;, ex.getMessage(), request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errorResponse);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /** Handles HTTP method not supported exceptions. */
+&nbsp;  @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+&nbsp;  public ResponseEntity&lt;ErrorResponse&gt; handleMethodNotSupportedException(
+&nbsp;      HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+&nbsp;
+<b class="nc">&nbsp;    String correlationId = setupErrorContext(request, ex);</b>
+&nbsp;
+<b class="nc">&nbsp;    ErrorResponse errorResponse =</b>
+<b class="nc">&nbsp;        ErrorResponse.of(</b>
+&nbsp;                &quot;METHOD_NOT_SUPPORTED&quot;,
+<b class="nc">&nbsp;                String.format(</b>
+<b class="nc">&nbsp;                    &quot;HTTP method &#39;%s&#39; is not supported for this endpoint&quot;, ex.getMethod()))</b>
+<b class="nc">&nbsp;            .withPath(request.getRequestURI())</b>
+<b class="nc">&nbsp;            .withMethod(request.getMethod())</b>
+<b class="nc">&nbsp;            .withStatus(HttpStatus.METHOD_NOT_ALLOWED.value())</b>
+<b class="nc">&nbsp;            .withCorrelationId(correlationId);</b>
+&nbsp;
+<b class="nc">&nbsp;    addTraceInfo(errorResponse);</b>
+&nbsp;
+<b class="nc">&nbsp;    logger.warn(</b>
+<b class="nc">&nbsp;        &quot;Method not supported: {} for request to {}&quot;, ex.getMethod(), request.getRequestURI());</b>
+&nbsp;
+<b class="nc">&nbsp;    return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(errorResponse);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /** Handles missing request parameter exceptions. */
+&nbsp;  @ExceptionHandler(MissingServletRequestParameterException.class)
+&nbsp;  public ResponseEntity&lt;ErrorResponse&gt; handleMissingParameterException(
+&nbsp;      MissingServletRequestParameterException ex, HttpServletRequest request) {
+&nbsp;
+<b class="nc">&nbsp;    String correlationId = setupErrorContext(request, ex);</b>
+&nbsp;
+<b class="nc">&nbsp;    ErrorResponse errorResponse =</b>
+<b class="nc">&nbsp;        ErrorResponse.validationError(</b>
+<b class="nc">&nbsp;                String.format(&quot;Required parameter &#39;%s&#39; is missing&quot;, ex.getParameterName()))</b>
+<b class="nc">&nbsp;            .withPath(request.getRequestURI())</b>
+<b class="nc">&nbsp;            .withMethod(request.getMethod())</b>
+<b class="nc">&nbsp;            .withStatus(HttpStatus.BAD_REQUEST.value())</b>
+<b class="nc">&nbsp;            .withCorrelationId(correlationId);</b>
+&nbsp;
+<b class="nc">&nbsp;    addTraceInfo(errorResponse);</b>
+&nbsp;
+<b class="nc">&nbsp;    logger.warn(</b>
+<b class="nc">&nbsp;        &quot;Missing parameter: {} for request to {}&quot;, ex.getParameterName(), request.getRequestURI());</b>
+&nbsp;
+<b class="nc">&nbsp;    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /** Handles method argument type mismatch exceptions. */
+&nbsp;  @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+&nbsp;  public ResponseEntity&lt;ErrorResponse&gt; handleTypeMismatchException(
+&nbsp;      MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
+&nbsp;
+<b class="nc">&nbsp;    String correlationId = setupErrorContext(request, ex);</b>
+&nbsp;
+<b class="nc">&nbsp;    ErrorResponse errorResponse =</b>
+<b class="nc">&nbsp;        ErrorResponse.validationError(</b>
+<b class="nc">&nbsp;                String.format(&quot;Invalid value &#39;%s&#39; for parameter &#39;%s&#39;&quot;, ex.getValue(), ex.getName()))</b>
+<b class="nc">&nbsp;            .withPath(request.getRequestURI())</b>
+<b class="nc">&nbsp;            .withMethod(request.getMethod())</b>
+<b class="nc">&nbsp;            .withStatus(HttpStatus.BAD_REQUEST.value())</b>
+<b class="nc">&nbsp;            .withCorrelationId(correlationId);</b>
+&nbsp;
+<b class="nc">&nbsp;    addTraceInfo(errorResponse);</b>
+&nbsp;
+<b class="nc">&nbsp;    logger.warn(</b>
+&nbsp;        &quot;Type mismatch: {} for parameter {} in request to {}&quot;,
+<b class="nc">&nbsp;        ex.getValue(),</b>
+<b class="nc">&nbsp;        ex.getName(),</b>
+<b class="nc">&nbsp;        request.getRequestURI());</b>
+&nbsp;
+<b class="nc">&nbsp;    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /** Handles HTTP message not readable exceptions. */
+&nbsp;  @ExceptionHandler(HttpMessageNotReadableException.class)
+&nbsp;  public ResponseEntity&lt;ErrorResponse&gt; handleMessageNotReadableException(
+&nbsp;      HttpMessageNotReadableException ex, HttpServletRequest request) {
+&nbsp;
+<b class="nc">&nbsp;    String correlationId = setupErrorContext(request, ex);</b>
+&nbsp;
+<b class="nc">&nbsp;    ErrorResponse errorResponse =</b>
+<b class="nc">&nbsp;        ErrorResponse.validationError(&quot;Invalid request body format&quot;)</b>
+<b class="nc">&nbsp;            .withPath(request.getRequestURI())</b>
+<b class="nc">&nbsp;            .withMethod(request.getMethod())</b>
+<b class="nc">&nbsp;            .withStatus(HttpStatus.BAD_REQUEST.value())</b>
+<b class="nc">&nbsp;            .withCorrelationId(correlationId);</b>
+&nbsp;
+<b class="nc">&nbsp;    addTraceInfo(errorResponse);</b>
+&nbsp;
+<b class="nc">&nbsp;    logger.warn(&quot;Invalid request body for request to {}&quot;, request.getRequestURI());</b>
+&nbsp;
+<b class="nc">&nbsp;    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /** Handles database access exceptions. */
+&nbsp;  @ExceptionHandler({DataAccessException.class, SQLException.class})
+&nbsp;  public ResponseEntity&lt;ErrorResponse&gt; handleDatabaseException(
+&nbsp;      Exception ex, HttpServletRequest request) {
+&nbsp;
+<b class="nc">&nbsp;    String correlationId = setupErrorContext(request, ex);</b>
+&nbsp;
+<b class="nc">&nbsp;    ErrorResponse errorResponse =</b>
+<b class="nc">&nbsp;        ErrorResponse.systemError(&quot;Database operation failed&quot;)</b>
+<b class="nc">&nbsp;            .withPath(request.getRequestURI())</b>
+<b class="nc">&nbsp;            .withMethod(request.getMethod())</b>
+<b class="nc">&nbsp;            .withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())</b>
+<b class="nc">&nbsp;            .withCorrelationId(correlationId);</b>
+&nbsp;
+<b class="nc">&nbsp;    addTraceInfo(errorResponse);</b>
+&nbsp;
+<b class="nc">&nbsp;    logger.error(</b>
+<b class="nc">&nbsp;        &quot;Database error for request to {}: {}&quot;, request.getRequestURI(), ex.getMessage(), ex);</b>
+&nbsp;
+<b class="nc">&nbsp;    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /** Handles data integrity violation exceptions. */
+&nbsp;  @ExceptionHandler(DataIntegrityViolationException.class)
+&nbsp;  public ResponseEntity&lt;ErrorResponse&gt; handleDataIntegrityException(
+&nbsp;      DataIntegrityViolationException ex, HttpServletRequest request) {
+&nbsp;
+<b class="nc">&nbsp;    String correlationId = setupErrorContext(request, ex);</b>
+&nbsp;
+<b class="nc">&nbsp;    ErrorResponse errorResponse =</b>
+<b class="nc">&nbsp;        ErrorResponse.businessError(</b>
+&nbsp;                &quot;DATA_INTEGRITY_VIOLATION&quot;, &quot;Data integrity constraint violation&quot;)
+<b class="nc">&nbsp;            .withPath(request.getRequestURI())</b>
+<b class="nc">&nbsp;            .withMethod(request.getMethod())</b>
+<b class="nc">&nbsp;            .withStatus(HttpStatus.CONFLICT.value())</b>
+<b class="nc">&nbsp;            .withCorrelationId(correlationId);</b>
+&nbsp;
+<b class="nc">&nbsp;    addTraceInfo(errorResponse);</b>
+&nbsp;
+<b class="nc">&nbsp;    logger.warn(</b>
+<b class="nc">&nbsp;        &quot;Data integrity violation for request to {}: {}&quot;, request.getRequestURI(), ex.getMessage());</b>
+&nbsp;
+<b class="nc">&nbsp;    return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /** Handles all other unhandled exceptions. */
+&nbsp;  @ExceptionHandler(Exception.class)
+&nbsp;  public ResponseEntity&lt;ErrorResponse&gt; handleGenericException(
+&nbsp;      Exception ex, HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    String correlationId = setupErrorContext(request, ex);</b>
+&nbsp;
+<b class="fc">&nbsp;    ErrorResponse errorResponse =</b>
+<b class="fc">&nbsp;        ErrorResponse.systemError(DEFAULT_ERROR_MESSAGE)</b>
+<b class="fc">&nbsp;            .withPath(request.getRequestURI())</b>
+<b class="fc">&nbsp;            .withMethod(request.getMethod())</b>
+<b class="fc">&nbsp;            .withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())</b>
+<b class="fc">&nbsp;            .withCorrelationId(correlationId);</b>
+&nbsp;
+<b class="fc">&nbsp;    addTraceInfo(errorResponse);</b>
+&nbsp;
+<b class="fc">&nbsp;    logger.error(</b>
+<b class="fc">&nbsp;        &quot;Unhandled exception for request to {}: {}&quot;, request.getRequestURI(), ex.getMessage(), ex);</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /** Sets up error context for logging and tracing. */
+&nbsp;  private String setupErrorContext(HttpServletRequest request, Exception ex) {
+<b class="fc">&nbsp;    String correlationId = getOrCreateCorrelationId(request);</b>
+&nbsp;
+&nbsp;    // Set up MDC for structured logging
+<b class="fc">&nbsp;    MDC.put(&quot;correlationId&quot;, correlationId);</b>
+<b class="fc">&nbsp;    MDC.put(&quot;requestUri&quot;, request.getRequestURI());</b>
+<b class="fc">&nbsp;    MDC.put(&quot;httpMethod&quot;, request.getMethod());</b>
+<b class="fc">&nbsp;    MDC.put(&quot;exceptionType&quot;, ex.getClass().getSimpleName());</b>
+&nbsp;
+<b class="pc">&nbsp;    if (request.getRemoteUser() != null) {</b>
+<b class="nc">&nbsp;      MDC.put(&quot;userId&quot;, request.getRemoteUser());</b>
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    return correlationId;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /** Adds trace information to the error response. */
+&nbsp;  private void addTraceInfo(ErrorResponse errorResponse) {
+&nbsp;    // Removed tracer and trace context as they are no longer imported
+<b class="fc">&nbsp;  }</b>
+&nbsp;
+&nbsp;  /** Gets or creates a correlation ID for the request. */
+&nbsp;  private String getOrCreateCorrelationId(HttpServletRequest request) {
+<b class="fc">&nbsp;    String correlationId = request.getHeader(CORRELATION_ID_HEADER);</b>
+<b class="pc">&nbsp;    if (correlationId == null || correlationId.trim().isEmpty()) {</b>
+<b class="fc">&nbsp;      correlationId = UUID.randomUUID().toString();</b>
+&nbsp;    }
+<b class="fc">&nbsp;    return correlationId;</b>
+&nbsp;  }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-07-15 02:36</div>
+</div>
+</body>
+</html>

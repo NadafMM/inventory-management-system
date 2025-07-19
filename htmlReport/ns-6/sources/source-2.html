@@ -1,0 +1,229 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > CorrelationIdFilter</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.inventorymanagement.common.config</a>
+</div>
+
+<h1>Coverage Summary for Class: CorrelationIdFilter (com.inventorymanagement.common.config)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">CorrelationIdFilter</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    85.7%
+  </span>
+  <span class="absValue">
+    (6/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    25%
+  </span>
+  <span class="absValue">
+    (2/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    95%
+  </span>
+  <span class="absValue">
+    (19/20)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.inventorymanagement.common.config;
+&nbsp;
+&nbsp;import jakarta.servlet.Filter;
+&nbsp;import jakarta.servlet.FilterChain;
+&nbsp;import jakarta.servlet.FilterConfig;
+&nbsp;import jakarta.servlet.ServletException;
+&nbsp;import jakarta.servlet.ServletRequest;
+&nbsp;import jakarta.servlet.ServletResponse;
+&nbsp;import jakarta.servlet.http.HttpServletRequest;
+&nbsp;import jakarta.servlet.http.HttpServletResponse;
+&nbsp;import java.io.IOException;
+&nbsp;import java.util.UUID;
+&nbsp;import org.slf4j.MDC;
+&nbsp;import org.springframework.core.annotation.Order;
+&nbsp;import org.springframework.stereotype.Component;
+&nbsp;
+&nbsp;/**
+&nbsp; * Filter that adds a correlation ID to each request for better log traceability.
+&nbsp; *
+&nbsp; * &lt;p&gt;This filter generates a unique correlation ID for each incoming request and adds it to: -
+&nbsp; * Mapped Diagnostic Context (MDC) for logging - Response headers for client-side correlation -
+&nbsp; * Request attributes for access by other components
+&nbsp; *
+&nbsp; * &lt;p&gt;The correlation ID helps in: - Tracing requests across logs - Debugging distributed systems -
+&nbsp; * Performance monitoring - Error tracking and analysis
+&nbsp; */
+&nbsp;@Component
+&nbsp;@Order(1)
+<b class="fc">&nbsp;public class CorrelationIdFilter implements Filter {</b>
+&nbsp;
+&nbsp;  private static final String CORRELATION_ID_KEY = &quot;correlationId&quot;;
+&nbsp;  private static final String CORRELATION_ID_HEADER = &quot;X-Correlation-ID&quot;;
+&nbsp;  private static final String REQUEST_ID_HEADER = &quot;X-Request-ID&quot;;
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Gets the correlation ID from the current request context.
+&nbsp;   *
+&nbsp;   * @return correlation ID from MDC, or null if not available
+&nbsp;   */
+&nbsp;  public static String getCurrentCorrelationId() {
+<b class="fc">&nbsp;    return MDC.get(CORRELATION_ID_KEY);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  @Override
+&nbsp;  public void init(FilterConfig filterConfig) throws ServletException {
+&nbsp;    // No initialization needed
+<b class="fc">&nbsp;  }</b>
+&nbsp;
+&nbsp;  @Override
+&nbsp;  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+&nbsp;      throws IOException, ServletException {
+&nbsp;
+<b class="fc">&nbsp;    HttpServletRequest httpRequest = (HttpServletRequest) request;</b>
+<b class="fc">&nbsp;    HttpServletResponse httpResponse = (HttpServletResponse) response;</b>
+&nbsp;
+&nbsp;    try {
+<b class="fc">&nbsp;      String correlationId = getOrGenerateCorrelationId(httpRequest);</b>
+&nbsp;
+&nbsp;      // Add to MDC for logging
+<b class="fc">&nbsp;      MDC.put(CORRELATION_ID_KEY, correlationId);</b>
+&nbsp;
+&nbsp;      // Add to request attributes for access by other components
+<b class="fc">&nbsp;      httpRequest.setAttribute(CORRELATION_ID_KEY, correlationId);</b>
+&nbsp;
+&nbsp;      // Add to response headers
+<b class="fc">&nbsp;      httpResponse.setHeader(CORRELATION_ID_HEADER, correlationId);</b>
+<b class="fc">&nbsp;      httpResponse.setHeader(REQUEST_ID_HEADER, correlationId);</b>
+&nbsp;
+&nbsp;      // Continue with the filter chain
+<b class="fc">&nbsp;      chain.doFilter(request, response);</b>
+&nbsp;
+&nbsp;    } finally {
+&nbsp;      // Clean up MDC to prevent memory leaks
+<b class="fc">&nbsp;      MDC.clear();</b>
+&nbsp;    }
+&nbsp;  }
+&nbsp;
+&nbsp;  @Override
+&nbsp;  public void destroy() {
+&nbsp;    // No cleanup needed
+<b class="nc">&nbsp;  }</b>
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Gets correlation ID from request header or generates a new one.
+&nbsp;   *
+&nbsp;   * @param request the HTTP request
+&nbsp;   * @return correlation ID
+&nbsp;   */
+&nbsp;  private String getOrGenerateCorrelationId(HttpServletRequest request) {
+&nbsp;    // Check if correlation ID is provided in request headers
+<b class="fc">&nbsp;    String correlationId = request.getHeader(CORRELATION_ID_HEADER);</b>
+&nbsp;
+<b class="pc">&nbsp;    if (correlationId == null || correlationId.trim().isEmpty()) {</b>
+<b class="fc">&nbsp;      correlationId = request.getHeader(REQUEST_ID_HEADER);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // Generate new correlation ID if not provided
+<b class="pc">&nbsp;    if (correlationId == null || correlationId.trim().isEmpty()) {</b>
+<b class="fc">&nbsp;      correlationId = generateCorrelationId();</b>
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    return correlationId;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Generates a new correlation ID.
+&nbsp;   *
+&nbsp;   * @return new correlation ID
+&nbsp;   */
+&nbsp;  private String generateCorrelationId() {
+<b class="fc">&nbsp;    return UUID.randomUUID().toString();</b>
+&nbsp;  }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-07-19 20:52</div>
+</div>
+</body>
+</html>

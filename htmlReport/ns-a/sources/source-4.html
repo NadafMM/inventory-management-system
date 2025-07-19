@@ -1,0 +1,332 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > SkuMapper</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.inventorymanagement.inventory.model</a>
+</div>
+
+<h1>Coverage Summary for Class: SkuMapper (com.inventorymanagement.inventory.model)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">SkuMapper</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/26)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/106)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.inventorymanagement.inventory.model;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;
+&nbsp;/**
+&nbsp; * Mapper utility class for converting between Sku entities and SkuDto objects. Provides static
+&nbsp; * methods for entity-DTO conversion.
+&nbsp; */
+&nbsp;public final class SkuMapper {
+&nbsp;
+&nbsp;  private SkuMapper() {
+&nbsp;    // Private constructor to prevent instantiation
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Converts a Sku entity to SkuDto.
+&nbsp;   *
+&nbsp;   * @param sku the Sku entity to convert
+&nbsp;   * @return SkuDto object or null if input is null
+&nbsp;   */
+&nbsp;  public static SkuDto toDto(Sku sku) {
+<b class="nc">&nbsp;    if (sku == null) {</b>
+<b class="nc">&nbsp;      return null;</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    SkuDto dto = new SkuDto();</b>
+<b class="nc">&nbsp;    dto.setId(sku.getId());</b>
+<b class="nc">&nbsp;    dto.setSkuCode(sku.getSkuCode());</b>
+<b class="nc">&nbsp;    dto.setVariantName(sku.getVariantName());</b>
+<b class="nc">&nbsp;    dto.setSize(sku.getSize());</b>
+<b class="nc">&nbsp;    dto.setColor(sku.getColor());</b>
+<b class="nc">&nbsp;    dto.setPrice(sku.getPrice());</b>
+<b class="nc">&nbsp;    dto.setCost(sku.getCost());</b>
+<b class="nc">&nbsp;    dto.setStockQuantity(sku.getStockQuantity());</b>
+<b class="nc">&nbsp;    dto.setReservedQuantity(sku.getReservedQuantity());</b>
+<b class="nc">&nbsp;    dto.setReorderPoint(sku.getReorderPoint());</b>
+<b class="nc">&nbsp;    dto.setReorderQuantity(sku.getReorderQuantity());</b>
+<b class="nc">&nbsp;    dto.setBarcode(sku.getBarcode());</b>
+<b class="nc">&nbsp;    dto.setLocation(sku.getLocation());</b>
+<b class="nc">&nbsp;    dto.setIsActive(sku.getIsActive());</b>
+<b class="nc">&nbsp;    dto.setMetadata(sku.getMetadata());</b>
+<b class="nc">&nbsp;    dto.setCreatedAt(sku.getCreatedAt());</b>
+<b class="nc">&nbsp;    dto.setUpdatedAt(sku.getUpdatedAt());</b>
+<b class="nc">&nbsp;    dto.setDeletedAt(sku.getDeletedAt());</b>
+<b class="nc">&nbsp;    dto.setVersion(sku.getVersion());</b>
+&nbsp;
+&nbsp;    // Set product information
+<b class="nc">&nbsp;    if (sku.getProduct() != null) {</b>
+<b class="nc">&nbsp;      dto.setProductId(sku.getProduct().getId());</b>
+<b class="nc">&nbsp;      dto.setProductName(sku.getProduct().getName());</b>
+&nbsp;
+<b class="nc">&nbsp;      if (sku.getProduct().getCategory() != null) {</b>
+<b class="nc">&nbsp;        dto.setCategoryName(sku.getProduct().getCategory().getName());</b>
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+&nbsp;    // Set computed fields
+<b class="nc">&nbsp;    dto.setAvailableQuantity(sku.getAvailableQuantity());</b>
+<b class="nc">&nbsp;    dto.setIsLowOnStock(sku.isLowOnStock());</b>
+<b class="nc">&nbsp;    dto.setIsOutOfStock(sku.isOutOfStock());</b>
+<b class="nc">&nbsp;    dto.setProfitMargin(sku.getProfitMargin());</b>
+<b class="nc">&nbsp;    dto.setStockValue(sku.getStockValue());</b>
+&nbsp;
+<b class="nc">&nbsp;    return dto;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Converts a SkuDto to Sku entity. Note: This method creates a new entity and does not handle
+&nbsp;   * relationships.
+&nbsp;   *
+&nbsp;   * @param dto the SkuDto to convert
+&nbsp;   * @return Sku entity or null if input is null
+&nbsp;   */
+&nbsp;  public static Sku toEntity(SkuDto dto) {
+<b class="nc">&nbsp;    if (dto == null) {</b>
+<b class="nc">&nbsp;      return null;</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    Sku sku = new Sku();</b>
+<b class="nc">&nbsp;    sku.setId(dto.getId());</b>
+<b class="nc">&nbsp;    sku.setSkuCode(dto.getSkuCode());</b>
+<b class="nc">&nbsp;    sku.setVariantName(dto.getVariantName());</b>
+<b class="nc">&nbsp;    sku.setSize(dto.getSize());</b>
+<b class="nc">&nbsp;    sku.setColor(dto.getColor());</b>
+<b class="nc">&nbsp;    sku.setPrice(dto.getPrice());</b>
+<b class="nc">&nbsp;    sku.setCost(dto.getCost());</b>
+<b class="nc">&nbsp;    sku.setStockQuantity(dto.getStockQuantity());</b>
+<b class="nc">&nbsp;    sku.setReservedQuantity(dto.getReservedQuantity());</b>
+<b class="nc">&nbsp;    sku.setReorderPoint(dto.getReorderPoint());</b>
+<b class="nc">&nbsp;    sku.setReorderQuantity(dto.getReorderQuantity());</b>
+<b class="nc">&nbsp;    sku.setBarcode(dto.getBarcode());</b>
+<b class="nc">&nbsp;    sku.setLocation(dto.getLocation());</b>
+<b class="nc">&nbsp;    sku.setIsActive(dto.getIsActive());</b>
+<b class="nc">&nbsp;    sku.setMetadata(dto.getMetadata());</b>
+<b class="nc">&nbsp;    sku.setCreatedAt(dto.getCreatedAt());</b>
+<b class="nc">&nbsp;    sku.setUpdatedAt(dto.getUpdatedAt());</b>
+<b class="nc">&nbsp;    sku.setDeletedAt(dto.getDeletedAt());</b>
+<b class="nc">&nbsp;    sku.setVersion(dto.getVersion());</b>
+&nbsp;
+<b class="nc">&nbsp;    return sku;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Updates an existing Sku entity with data from SkuDto. Does not update ID, timestamps, or
+&nbsp;   * relationship fields.
+&nbsp;   *
+&nbsp;   * @param sku the Sku entity to update
+&nbsp;   * @param dto the SkuDto with updated data
+&nbsp;   */
+&nbsp;  public static void updateEntityFromDto(Sku sku, SkuDto dto) {
+<b class="nc">&nbsp;    if (sku == null || dto == null) {</b>
+&nbsp;      return;
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    sku.setSkuCode(dto.getSkuCode());</b>
+<b class="nc">&nbsp;    sku.setVariantName(dto.getVariantName());</b>
+<b class="nc">&nbsp;    sku.setSize(dto.getSize());</b>
+<b class="nc">&nbsp;    sku.setColor(dto.getColor());</b>
+<b class="nc">&nbsp;    sku.setPrice(dto.getPrice());</b>
+<b class="nc">&nbsp;    sku.setCost(dto.getCost());</b>
+<b class="nc">&nbsp;    sku.setStockQuantity(dto.getStockQuantity());</b>
+<b class="nc">&nbsp;    sku.setReservedQuantity(dto.getReservedQuantity());</b>
+<b class="nc">&nbsp;    sku.setReorderPoint(dto.getReorderPoint());</b>
+<b class="nc">&nbsp;    sku.setReorderQuantity(dto.getReorderQuantity());</b>
+<b class="nc">&nbsp;    sku.setBarcode(dto.getBarcode());</b>
+<b class="nc">&nbsp;    sku.setLocation(dto.getLocation());</b>
+<b class="nc">&nbsp;    sku.setIsActive(dto.getIsActive());</b>
+<b class="nc">&nbsp;    sku.setMetadata(dto.getMetadata());</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Converts a list of Sku entities to a list of SkuDto objects.
+&nbsp;   *
+&nbsp;   * @param skus the list of Sku entities to convert
+&nbsp;   * @return list of SkuDto objects
+&nbsp;   */
+&nbsp;  public static List&lt;SkuDto&gt; toDtoList(List&lt;Sku&gt; skus) {
+<b class="nc">&nbsp;    if (skus == null) {</b>
+<b class="nc">&nbsp;      return null;</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    return skus.stream().map(SkuMapper::toDto).collect(Collectors.toList());</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Converts a list of SkuDto objects to a list of Sku entities.
+&nbsp;   *
+&nbsp;   * @param dtos the list of SkuDto objects to convert
+&nbsp;   * @return list of Sku entities
+&nbsp;   */
+&nbsp;  public static List&lt;Sku&gt; toEntityList(List&lt;SkuDto&gt; dtos) {
+<b class="nc">&nbsp;    if (dtos == null) {</b>
+<b class="nc">&nbsp;      return null;</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    return dtos.stream().map(SkuMapper::toEntity).collect(Collectors.toList());</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Creates a summary SkuDto with minimal information. Useful for nested objects or list views.
+&nbsp;   *
+&nbsp;   * @param sku the Sku entity to convert
+&nbsp;   * @return SkuDto with summary information
+&nbsp;   */
+&nbsp;  public static SkuDto toSummaryDto(Sku sku) {
+<b class="nc">&nbsp;    if (sku == null) {</b>
+<b class="nc">&nbsp;      return null;</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    SkuDto dto = new SkuDto();</b>
+<b class="nc">&nbsp;    dto.setId(sku.getId());</b>
+<b class="nc">&nbsp;    dto.setSkuCode(sku.getSkuCode());</b>
+<b class="nc">&nbsp;    dto.setVariantName(sku.getVariantName());</b>
+<b class="nc">&nbsp;    dto.setPrice(sku.getPrice());</b>
+<b class="nc">&nbsp;    dto.setStockQuantity(sku.getStockQuantity());</b>
+<b class="nc">&nbsp;    dto.setAvailableQuantity(sku.getAvailableQuantity());</b>
+<b class="nc">&nbsp;    dto.setIsActive(sku.getIsActive());</b>
+<b class="nc">&nbsp;    dto.setIsLowOnStock(sku.isLowOnStock());</b>
+<b class="nc">&nbsp;    dto.setIsOutOfStock(sku.isOutOfStock());</b>
+&nbsp;
+<b class="nc">&nbsp;    if (sku.getProduct() != null) {</b>
+<b class="nc">&nbsp;      dto.setProductId(sku.getProduct().getId());</b>
+<b class="nc">&nbsp;      dto.setProductName(sku.getProduct().getName());</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    return dto;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Creates a SkuDto for inventory display with stock information.
+&nbsp;   *
+&nbsp;   * @param sku the Sku entity to convert
+&nbsp;   * @return SkuDto with inventory information
+&nbsp;   */
+&nbsp;  public static SkuDto toInventoryDto(Sku sku) {
+<b class="nc">&nbsp;    if (sku == null) {</b>
+<b class="nc">&nbsp;      return null;</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    SkuDto dto = toSummaryDto(sku);</b>
+<b class="nc">&nbsp;    dto.setReservedQuantity(sku.getReservedQuantity());</b>
+<b class="nc">&nbsp;    dto.setReorderPoint(sku.getReorderPoint());</b>
+<b class="nc">&nbsp;    dto.setReorderQuantity(sku.getReorderQuantity());</b>
+<b class="nc">&nbsp;    dto.setLocation(sku.getLocation());</b>
+<b class="nc">&nbsp;    dto.setBarcode(sku.getBarcode());</b>
+<b class="nc">&nbsp;    dto.setStockValue(sku.getStockValue());</b>
+<b class="nc">&nbsp;    dto.setProfitMargin(sku.getProfitMargin());</b>
+&nbsp;
+<b class="nc">&nbsp;    if (sku.getProduct() != null &amp;&amp; sku.getProduct().getCategory() != null) {</b>
+<b class="nc">&nbsp;      dto.setCategoryName(sku.getProduct().getCategory().getName());</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    return dto;</b>
+&nbsp;  }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-07-15 02:36</div>
+</div>
+</body>
+</html>

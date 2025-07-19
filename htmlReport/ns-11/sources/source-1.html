@@ -1,0 +1,516 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ProductRepository</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.inventorymanagement.product.repository</a>
+</div>
+
+<h1>Coverage Summary for Class: ProductRepository (com.inventorymanagement.product.repository)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+</tr>
+  <tr>
+    <td class="name">ProductRepository$MockitoMock$zv0mjDxA</td>
+  </tr>
+  <tr>
+    <td class="name">ProductRepository$MockitoMock$zv0mjDxA$auxiliary$LoqJQRkt</td>
+  </tr>
+  <tr>
+    <td class="name">ProductRepository$MockitoMock$zv0mjDxA$auxiliary$u149irDH</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.inventorymanagement.product.repository;
+&nbsp;
+&nbsp;import com.inventorymanagement.common.repository.BaseRepository;
+&nbsp;import com.inventorymanagement.product.model.Product;
+&nbsp;import java.math.BigDecimal;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Optional;
+&nbsp;import org.springframework.data.domain.Page;
+&nbsp;import org.springframework.data.domain.Pageable;
+&nbsp;import org.springframework.data.jpa.repository.Query;
+&nbsp;import org.springframework.data.repository.query.Param;
+&nbsp;import org.springframework.stereotype.Repository;
+&nbsp;
+&nbsp;/**
+&nbsp; * Repository interface for Product entity. Provides product-specific query methods and search
+&nbsp; * functionality.
+&nbsp; */
+&nbsp;@Repository
+&nbsp;public interface ProductRepository extends BaseRepository&lt;Product, Long&gt; {
+&nbsp;
+&nbsp;  // ===== CATEGORY-BASED QUERIES =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all products in a specific category.
+&nbsp;   *
+&nbsp;   * @param categoryId the category ID
+&nbsp;   * @return list of products in the category
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT p FROM Product p WHERE p.category.id = :categoryId AND p.deletedAt IS NULL ORDER BY p.name&quot;)
+&nbsp;  List&lt;Product&gt; findByCategoryId(@Param(&quot;categoryId&quot;) Long categoryId);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all products in a specific category with pagination.
+&nbsp;   *
+&nbsp;   * @param categoryId the category ID
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of products in the category
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT p FROM Product p WHERE p.category.id = :categoryId AND p.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Product&gt; findByCategoryId(@Param(&quot;categoryId&quot;) Long categoryId, Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all products in categories that match a path pattern (hierarchical).
+&nbsp;   *
+&nbsp;   * @param categoryPath the category path pattern
+&nbsp;   * @return list of products in matching categories
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT p FROM Product p JOIN p.category c WHERE c.path LIKE CONCAT(:categoryPath, &#39;%&#39;) AND p.deletedAt IS NULL AND c.deletedAt IS NULL ORDER BY p.name&quot;)
+&nbsp;  List&lt;Product&gt; findByCategoryPathStartingWith(@Param(&quot;categoryPath&quot;) String categoryPath);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all products in multiple categories.
+&nbsp;   *
+&nbsp;   * @param categoryIds list of category IDs
+&nbsp;   * @return list of products in the specified categories
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT p FROM Product p WHERE p.category.id IN :categoryIds AND p.deletedAt IS NULL ORDER BY p.name&quot;)
+&nbsp;  List&lt;Product&gt; findByCategoryIdIn(@Param(&quot;categoryIds&quot;) List&lt;Long&gt; categoryIds);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all products in multiple categories with pagination.
+&nbsp;   *
+&nbsp;   * @param categoryIds list of category IDs
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of products in the specified categories
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT p FROM Product p WHERE p.category.id IN :categoryIds AND p.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Product&gt; findByCategoryIdIn(@Param(&quot;categoryIds&quot;) List&lt;Long&gt; categoryIds, Pageable pageable);
+&nbsp;
+&nbsp;  // ===== SEARCH AND FILTER QUERIES =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Searches products by name (case-insensitive partial match).
+&nbsp;   *
+&nbsp;   * @param name the search term
+&nbsp;   * @return list of matching products
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT(&#39;%&#39;, :name, &#39;%&#39;)) AND p.deletedAt IS NULL ORDER BY p.name&quot;)
+&nbsp;  List&lt;Product&gt; findByNameContainingIgnoreCase(@Param(&quot;name&quot;) String name);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Searches products by name with pagination.
+&nbsp;   *
+&nbsp;   * @param name the search term
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of matching products
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT(&#39;%&#39;, :name, &#39;%&#39;)) AND p.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Product&gt; findByNameContainingIgnoreCase(@Param(&quot;name&quot;) String name, Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Searches products by name or description.
+&nbsp;   *
+&nbsp;   * @param searchTerm the search term
+&nbsp;   * @return list of matching products
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT p FROM Product p WHERE (LOWER(p.name) LIKE LOWER(CONCAT(&#39;%&#39;, :searchTerm, &#39;%&#39;)) OR LOWER(p.description) LIKE LOWER(CONCAT(&#39;%&#39;, :searchTerm, &#39;%&#39;))) AND p.deletedAt IS NULL ORDER BY p.name&quot;)
+&nbsp;  List&lt;Product&gt; searchByNameOrDescription(@Param(&quot;searchTerm&quot;) String searchTerm);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Searches products by name or description with pagination.
+&nbsp;   *
+&nbsp;   * @param searchTerm the search term
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of matching products
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT p FROM Product p WHERE (LOWER(p.name) LIKE LOWER(CONCAT(&#39;%&#39;, :searchTerm, &#39;%&#39;)) OR LOWER(p.description) LIKE LOWER(CONCAT(&#39;%&#39;, :searchTerm, &#39;%&#39;))) AND p.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Product&gt; searchByNameOrDescription(
+&nbsp;      @Param(&quot;searchTerm&quot;) String searchTerm, Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds products by brand.
+&nbsp;   *
+&nbsp;   * @param brand the brand name
+&nbsp;   * @return list of products with the specified brand
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT p FROM Product p WHERE LOWER(p.brand) = LOWER(:brand) AND p.deletedAt IS NULL ORDER BY p.name&quot;)
+&nbsp;  List&lt;Product&gt; findByBrandIgnoreCase(@Param(&quot;brand&quot;) String brand);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds products by brand with pagination.
+&nbsp;   *
+&nbsp;   * @param brand the brand name
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of products with the specified brand
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT p FROM Product p WHERE LOWER(p.brand) = LOWER(:brand) AND p.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Product&gt; findByBrandIgnoreCase(@Param(&quot;brand&quot;) String brand, Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds products by manufacturer.
+&nbsp;   *
+&nbsp;   * @param manufacturer the manufacturer name
+&nbsp;   * @return list of products with the specified manufacturer
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT p FROM Product p WHERE LOWER(p.manufacturer) = LOWER(:manufacturer) AND p.deletedAt IS NULL ORDER BY p.name&quot;)
+&nbsp;  List&lt;Product&gt; findByManufacturerIgnoreCase(@Param(&quot;manufacturer&quot;) String manufacturer);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds products by manufacturer with pagination.
+&nbsp;   *
+&nbsp;   * @param manufacturer the manufacturer name
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of products with the specified manufacturer
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT p FROM Product p WHERE LOWER(p.manufacturer) = LOWER(:manufacturer) AND p.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Product&gt; findByManufacturerIgnoreCase(
+&nbsp;      @Param(&quot;manufacturer&quot;) String manufacturer, Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds products by active status.
+&nbsp;   *
+&nbsp;   * @param isActive the active status
+&nbsp;   * @return list of products with the specified status
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT p FROM Product p WHERE p.isActive = :isActive AND p.deletedAt IS NULL ORDER BY p.name&quot;)
+&nbsp;  List&lt;Product&gt; findByIsActive(@Param(&quot;isActive&quot;) Boolean isActive);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds products by active status with pagination.
+&nbsp;   *
+&nbsp;   * @param isActive the active status
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of products with the specified status
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT p FROM Product p WHERE p.isActive = :isActive AND p.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Product&gt; findByIsActive(@Param(&quot;isActive&quot;) Boolean isActive, Pageable pageable);
+&nbsp;
+&nbsp;  // ===== INVENTORY-BASED QUERIES =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds products that have SKUs.
+&nbsp;   *
+&nbsp;   * @return list of products with SKUs
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT DISTINCT p FROM Product p JOIN p.skus s WHERE s.deletedAt IS NULL AND p.deletedAt IS NULL ORDER BY p.name&quot;)
+&nbsp;  List&lt;Product&gt; findProductsWithSkus();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds products that have no SKUs.
+&nbsp;   *
+&nbsp;   * @return list of products without SKUs
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT p FROM Product p WHERE p.id NOT IN (SELECT DISTINCT s.product.id FROM Sku s WHERE s.deletedAt IS NULL) AND p.deletedAt IS NULL ORDER BY p.name&quot;)
+&nbsp;  List&lt;Product&gt; findProductsWithoutSkus();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds products that have active SKUs.
+&nbsp;   *
+&nbsp;   * @return list of products with active SKUs
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT DISTINCT p FROM Product p JOIN p.skus s WHERE s.isActive = true AND s.deletedAt IS NULL AND p.deletedAt IS NULL ORDER BY p.name&quot;)
+&nbsp;  List&lt;Product&gt; findProductsWithActiveSkus();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds products that are low on stock (any SKU below reorder point).
+&nbsp;   *
+&nbsp;   * @return list of products with low stock
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT DISTINCT p FROM Product p JOIN p.skus s WHERE s.stockQuantity &lt;= s.reorderPoint AND s.isActive = true AND s.deletedAt IS NULL AND p.deletedAt IS NULL ORDER BY p.name&quot;)
+&nbsp;  List&lt;Product&gt; findProductsWithLowStock();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds products that are low on stock (any SKU below reorder point) with pagination.
+&nbsp;   *
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of products with low stock
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT DISTINCT p FROM Product p JOIN p.skus s WHERE s.stockQuantity &lt;= s.reorderPoint AND s.isActive = true AND s.deletedAt IS NULL AND p.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Product&gt; findLowStockProducts(Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds products that are out of stock (any SKU with zero stock).
+&nbsp;   *
+&nbsp;   * @return list of products with out of stock SKUs
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT DISTINCT p FROM Product p JOIN p.skus s WHERE s.stockQuantity = 0 AND s.isActive = true AND s.deletedAt IS NULL AND p.deletedAt IS NULL ORDER BY p.name&quot;)
+&nbsp;  List&lt;Product&gt; findProductsWithOutOfStockSkus();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds products with SKUs in a price range.
+&nbsp;   *
+&nbsp;   * @param minPrice minimum price
+&nbsp;   * @param maxPrice maximum price
+&nbsp;   * @return list of products with SKUs in the price range
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT DISTINCT p FROM Product p JOIN p.skus s WHERE s.price BETWEEN :minPrice AND :maxPrice AND s.isActive = true AND s.deletedAt IS NULL AND p.deletedAt IS NULL ORDER BY p.name&quot;)
+&nbsp;  List&lt;Product&gt; findProductsWithSkuPriceRange(
+&nbsp;      @Param(&quot;minPrice&quot;) BigDecimal minPrice, @Param(&quot;maxPrice&quot;) BigDecimal maxPrice);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds products with SKUs in a price range with pagination.
+&nbsp;   *
+&nbsp;   * @param minPrice minimum price
+&nbsp;   * @param maxPrice maximum price
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of products with SKUs in the price range
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT DISTINCT p FROM Product p JOIN p.skus s WHERE s.price BETWEEN :minPrice AND :maxPrice AND s.isActive = true AND s.deletedAt IS NULL AND p.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Product&gt; findProductsWithSkuPriceRange(
+&nbsp;      @Param(&quot;minPrice&quot;) BigDecimal minPrice,
+&nbsp;      @Param(&quot;maxPrice&quot;) BigDecimal maxPrice,
+&nbsp;      Pageable pageable);
+&nbsp;
+&nbsp;  // ===== BUSINESS LOGIC QUERIES =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds products with their SKU count.
+&nbsp;   *
+&nbsp;   * @return list of products with their SKU count
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT p, COUNT(s) as skuCount FROM Product p LEFT JOIN p.skus s WHERE p.deletedAt IS NULL AND (s.deletedAt IS NULL OR s IS NULL) GROUP BY p ORDER BY p.name&quot;)
+&nbsp;  List&lt;Object[]&gt; findProductsWithSkuCount();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds products with their active SKU count.
+&nbsp;   *
+&nbsp;   * @return list of products with their active SKU count
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT p, COUNT(s) as activeSkuCount FROM Product p LEFT JOIN p.skus s WHERE p.deletedAt IS NULL AND (s.isActive = true AND s.deletedAt IS NULL OR s IS NULL) GROUP BY p ORDER BY p.name&quot;)
+&nbsp;  List&lt;Object[]&gt; findProductsWithActiveSkuCount();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds products with their total stock quantity.
+&nbsp;   *
+&nbsp;   * @return list of products with their total stock quantity
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT p, COALESCE(SUM(s.stockQuantity), 0) as totalStock FROM Product p LEFT JOIN p.skus s WHERE p.deletedAt IS NULL AND (s.isActive = true AND s.deletedAt IS NULL OR s IS NULL) GROUP BY p ORDER BY p.name&quot;)
+&nbsp;  List&lt;Object[]&gt; findProductsWithTotalStock();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Counts products in a specific category.
+&nbsp;   *
+&nbsp;   * @param categoryId the category ID
+&nbsp;   * @return number of products
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT COUNT(p) FROM Product p WHERE p.category.id = :categoryId AND p.deletedAt IS NULL&quot;)
+&nbsp;  long countByCategoryId(@Param(&quot;categoryId&quot;) Long categoryId);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Counts active products in a specific category.
+&nbsp;   *
+&nbsp;   * @param categoryId the category ID
+&nbsp;   * @return number of active products
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT COUNT(p) FROM Product p WHERE p.category.id = :categoryId AND p.isActive = true AND p.deletedAt IS NULL&quot;)
+&nbsp;  long countActiveByCategoryId(@Param(&quot;categoryId&quot;) Long categoryId);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds products by exact name (case-sensitive).
+&nbsp;   *
+&nbsp;   * @param name the product name
+&nbsp;   * @return optional containing the product if found
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT p FROM Product p WHERE p.name = :name AND p.deletedAt IS NULL&quot;)
+&nbsp;  Optional&lt;Product&gt; findByName(@Param(&quot;name&quot;) String name);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds products by exact name and category.
+&nbsp;   *
+&nbsp;   * @param name the product name
+&nbsp;   * @param categoryId the category ID
+&nbsp;   * @return optional containing the product if found
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT p FROM Product p WHERE p.name = :name AND p.category.id = :categoryId AND p.deletedAt IS NULL&quot;)
+&nbsp;  Optional&lt;Product&gt; findByNameAndCategoryId(
+&nbsp;      @Param(&quot;name&quot;) String name, @Param(&quot;categoryId&quot;) Long categoryId);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Checks if a product name exists in the same category.
+&nbsp;   *
+&nbsp;   * @param name the product name
+&nbsp;   * @param categoryId the category ID
+&nbsp;   * @param excludeId the product ID to exclude from the check
+&nbsp;   * @return true if name exists in the category
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT COUNT(p) &gt; 0 FROM Product p WHERE p.name = :name AND p.category.id = :categoryId AND p.id != :excludeId AND p.deletedAt IS NULL&quot;)
+&nbsp;  boolean existsByNameAndCategoryIdExcludingId(
+&nbsp;      @Param(&quot;name&quot;) String name,
+&nbsp;      @Param(&quot;categoryId&quot;) Long categoryId,
+&nbsp;      @Param(&quot;excludeId&quot;) Long excludeId);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all distinct brands.
+&nbsp;   *
+&nbsp;   * @return list of distinct brands
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT DISTINCT p.brand FROM Product p WHERE p.brand IS NOT NULL AND p.deletedAt IS NULL ORDER BY p.brand&quot;)
+&nbsp;  List&lt;String&gt; findAllDistinctBrands();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all distinct manufacturers.
+&nbsp;   *
+&nbsp;   * @return list of distinct manufacturers
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT DISTINCT p.manufacturer FROM Product p WHERE p.manufacturer IS NOT NULL AND p.deletedAt IS NULL ORDER BY p.manufacturer&quot;)
+&nbsp;  List&lt;String&gt; findAllDistinctManufacturers();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Advanced search with multiple criteria.
+&nbsp;   *
+&nbsp;   * @param searchTerm search term for name/description
+&nbsp;   * @param categoryId category filter (null to ignore)
+&nbsp;   * @param brand brand filter (null to ignore)
+&nbsp;   * @param manufacturer manufacturer filter (null to ignore)
+&nbsp;   * @param isActive active status filter (null to ignore)
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of matching products
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT p FROM Product p WHERE &quot;
+&nbsp;          + &quot;(:searchTerm IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT(&#39;%&#39;, :searchTerm, &#39;%&#39;)) OR LOWER(p.description) LIKE LOWER(CONCAT(&#39;%&#39;, :searchTerm, &#39;%&#39;))) AND &quot;
+&nbsp;          + &quot;(:categoryId IS NULL OR p.category.id = :categoryId) AND &quot;
+&nbsp;          + &quot;(:brand IS NULL OR LOWER(p.brand) = LOWER(:brand)) AND &quot;
+&nbsp;          + &quot;(:manufacturer IS NULL OR LOWER(p.manufacturer) = LOWER(:manufacturer)) AND &quot;
+&nbsp;          + &quot;(:isActive IS NULL OR p.isActive = :isActive) AND &quot;
+&nbsp;          + &quot;p.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Product&gt; findWithFilters(
+&nbsp;      @Param(&quot;searchTerm&quot;) String searchTerm,
+&nbsp;      @Param(&quot;categoryId&quot;) Long categoryId,
+&nbsp;      @Param(&quot;brand&quot;) String brand,
+&nbsp;      @Param(&quot;manufacturer&quot;) String manufacturer,
+&nbsp;      @Param(&quot;isActive&quot;) Boolean isActive,
+&nbsp;      Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Extended search with price range criteria.
+&nbsp;   *
+&nbsp;   * @param name search term for name
+&nbsp;   * @param categoryId category filter (null to ignore)
+&nbsp;   * @param brand brand filter (null to ignore)
+&nbsp;   * @param manufacturer manufacturer filter (null to ignore)
+&nbsp;   * @param minPrice minimum price filter (null to ignore)
+&nbsp;   * @param maxPrice maximum price filter (null to ignore)
+&nbsp;   * @param isActive active status filter (null to ignore)
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of matching products
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT DISTINCT p FROM Product p LEFT JOIN p.skus s WHERE &quot;
+&nbsp;          + &quot;(:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT(&#39;%&#39;, :name, &#39;%&#39;))) AND &quot;
+&nbsp;          + &quot;(:categoryId IS NULL OR p.category.id = :categoryId) AND &quot;
+&nbsp;          + &quot;(:brand IS NULL OR LOWER(p.brand) = LOWER(:brand)) AND &quot;
+&nbsp;          + &quot;(:manufacturer IS NULL OR LOWER(p.manufacturer) = LOWER(:manufacturer)) AND &quot;
+&nbsp;          + &quot;(:minPrice IS NULL OR s.price &gt;= :minPrice) AND &quot;
+&nbsp;          + &quot;(:maxPrice IS NULL OR s.price &lt;= :maxPrice) AND &quot;
+&nbsp;          + &quot;(:isActive IS NULL OR p.isActive = :isActive) AND &quot;
+&nbsp;          + &quot;p.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Product&gt; findWithExtendedFilters(
+&nbsp;      @Param(&quot;name&quot;) String name,
+&nbsp;      @Param(&quot;categoryId&quot;) Long categoryId,
+&nbsp;      @Param(&quot;brand&quot;) String brand,
+&nbsp;      @Param(&quot;manufacturer&quot;) String manufacturer,
+&nbsp;      @Param(&quot;minPrice&quot;) BigDecimal minPrice,
+&nbsp;      @Param(&quot;maxPrice&quot;) BigDecimal maxPrice,
+&nbsp;      @Param(&quot;isActive&quot;) Boolean isActive,
+&nbsp;      Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Searches products by name or description with pagination.
+&nbsp;   *
+&nbsp;   * @param query the search query
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of matching products
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT p FROM Product p WHERE &quot;
+&nbsp;          + &quot;(LOWER(p.name) LIKE LOWER(CONCAT(&#39;%&#39;, :query, &#39;%&#39;)) OR LOWER(p.description) LIKE LOWER(CONCAT(&#39;%&#39;, :query, &#39;%&#39;))) AND &quot;
+&nbsp;          + &quot;p.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Product&gt; findByNameOrDescriptionContainingIgnoreCase(
+&nbsp;      @Param(&quot;query&quot;) String query, Pageable pageable);
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-07-19 20:52</div>
+</div>
+</body>
+</html>

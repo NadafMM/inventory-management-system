@@ -1,0 +1,544 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > SkuRepository</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.inventorymanagement.inventory.repository</a>
+</div>
+
+<h1>Coverage Summary for Class: SkuRepository (com.inventorymanagement.inventory.repository)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+</tr>
+  <tr>
+    <td class="name">SkuRepository$MockitoMock$yFaTINGj</td>
+  </tr>
+  <tr>
+    <td class="name">SkuRepository$MockitoMock$yFaTINGj$auxiliary$9Ra0AzML</td>
+  </tr>
+  <tr>
+    <td class="name">SkuRepository$MockitoMock$yFaTINGj$auxiliary$yqLkitLj</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.inventorymanagement.inventory.repository;
+&nbsp;
+&nbsp;import com.inventorymanagement.common.repository.BaseRepository;
+&nbsp;import com.inventorymanagement.inventory.model.Sku;
+&nbsp;import java.math.BigDecimal;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Optional;
+&nbsp;import org.springframework.data.domain.Page;
+&nbsp;import org.springframework.data.domain.Pageable;
+&nbsp;import org.springframework.data.jpa.repository.Query;
+&nbsp;import org.springframework.data.repository.query.Param;
+&nbsp;import org.springframework.stereotype.Repository;
+&nbsp;
+&nbsp;/**
+&nbsp; * Repository interface for SKU entity. Provides inventory-specific query methods and stock
+&nbsp; * management functionality.
+&nbsp; */
+&nbsp;@Repository
+&nbsp;public interface SkuRepository extends BaseRepository&lt;Sku, Long&gt; {
+&nbsp;
+&nbsp;  // ===== PRODUCT-BASED QUERIES =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all SKUs for a specific product.
+&nbsp;   *
+&nbsp;   * @param productId the product ID
+&nbsp;   * @return list of SKUs for the product
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE s.product.id = :productId AND s.deletedAt IS NULL ORDER BY s.variantName, s.skuCode&quot;)
+&nbsp;  List&lt;Sku&gt; findByProductId(@Param(&quot;productId&quot;) Long productId);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all SKUs for a specific product with pagination.
+&nbsp;   *
+&nbsp;   * @param productId the product ID
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of SKUs for the product
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT s FROM Sku s WHERE s.product.id = :productId AND s.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Sku&gt; findByProductId(@Param(&quot;productId&quot;) Long productId, Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all active SKUs for a specific product.
+&nbsp;   *
+&nbsp;   * @param productId the product ID
+&nbsp;   * @return list of active SKUs for the product
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE s.product.id = :productId AND s.isActive = true AND s.deletedAt IS NULL ORDER BY s.variantName, s.skuCode&quot;)
+&nbsp;  List&lt;Sku&gt; findActiveByProductId(@Param(&quot;productId&quot;) Long productId);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all SKUs for multiple products.
+&nbsp;   *
+&nbsp;   * @param productIds list of product IDs
+&nbsp;   * @return list of SKUs for the specified products
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE s.product.id IN :productIds AND s.deletedAt IS NULL ORDER BY s.product.name, s.variantName, s.skuCode&quot;)
+&nbsp;  List&lt;Sku&gt; findByProductIdIn(@Param(&quot;productIds&quot;) List&lt;Long&gt; productIds);
+&nbsp;
+&nbsp;  // ===== SKU CODE QUERIES =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds a SKU by its unique code.
+&nbsp;   *
+&nbsp;   * @param skuCode the SKU code
+&nbsp;   * @return optional containing the SKU if found
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT s FROM Sku s WHERE s.skuCode = :skuCode AND s.deletedAt IS NULL&quot;)
+&nbsp;  Optional&lt;Sku&gt; findBySkuCode(@Param(&quot;skuCode&quot;) String skuCode);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds SKUs by partial SKU code match.
+&nbsp;   *
+&nbsp;   * @param skuCodePattern the SKU code pattern
+&nbsp;   * @return list of matching SKUs
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE s.skuCode LIKE CONCAT(&#39;%&#39;, :skuCodePattern, &#39;%&#39;) AND s.deletedAt IS NULL ORDER BY s.skuCode&quot;)
+&nbsp;  List&lt;Sku&gt; findBySkuCodeContaining(@Param(&quot;skuCodePattern&quot;) String skuCodePattern);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Checks if a SKU code exists.
+&nbsp;   *
+&nbsp;   * @param skuCode the SKU code
+&nbsp;   * @param excludeId the SKU ID to exclude from the check
+&nbsp;   * @return true if SKU code exists
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT COUNT(s) &gt; 0 FROM Sku s WHERE s.skuCode = :skuCode AND s.id != :excludeId AND s.deletedAt IS NULL&quot;)
+&nbsp;  boolean existsBySkuCodeExcludingId(
+&nbsp;      @Param(&quot;skuCode&quot;) String skuCode, @Param(&quot;excludeId&quot;) Long excludeId);
+&nbsp;
+&nbsp;  // ===== INVENTORY QUERIES =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds SKUs with low stock (stock quantity &lt;= reorder point).
+&nbsp;   *
+&nbsp;   * @return list of SKUs with low stock
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE s.stockQuantity &lt;= s.reorderPoint AND s.isActive = true AND s.deletedAt IS NULL ORDER BY s.stockQuantity ASC, s.skuCode&quot;)
+&nbsp;  List&lt;Sku&gt; findLowStockSkus();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds SKUs with low stock with pagination.
+&nbsp;   *
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of SKUs with low stock
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE s.stockQuantity &lt;= s.reorderPoint AND s.isActive = true AND s.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Sku&gt; findLowStockSkus(Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds SKUs that are out of stock.
+&nbsp;   *
+&nbsp;   * @return list of out of stock SKUs
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE s.stockQuantity = 0 AND s.isActive = true AND s.deletedAt IS NULL ORDER BY s.skuCode&quot;)
+&nbsp;  List&lt;Sku&gt; findOutOfStockSkus();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds SKUs that are out of stock with pagination.
+&nbsp;   *
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of out of stock SKUs
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE s.stockQuantity = 0 AND s.isActive = true AND s.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Sku&gt; findOutOfStockSkus(Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds SKUs with available stock (stock quantity &gt; reserved quantity).
+&nbsp;   *
+&nbsp;   * @return list of SKUs with available stock
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE (s.stockQuantity - s.reservedQuantity) &gt; 0 AND s.isActive = true AND s.deletedAt IS NULL ORDER BY s.skuCode&quot;)
+&nbsp;  List&lt;Sku&gt; findSkusWithAvailableStock();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds SKUs with available stock with pagination.
+&nbsp;   *
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of SKUs with available stock
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE (s.stockQuantity - s.reservedQuantity) &gt; 0 AND s.isActive = true AND s.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Sku&gt; findSkusWithAvailableStock(Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds SKUs with reserved stock.
+&nbsp;   *
+&nbsp;   * @return list of SKUs with reserved stock
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE s.reservedQuantity &gt; 0 AND s.isActive = true AND s.deletedAt IS NULL ORDER BY s.reservedQuantity DESC, s.skuCode&quot;)
+&nbsp;  List&lt;Sku&gt; findSkusWithReservedStock();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds SKUs by stock quantity range.
+&nbsp;   *
+&nbsp;   * @param minStock minimum stock quantity
+&nbsp;   * @param maxStock maximum stock quantity
+&nbsp;   * @return list of SKUs in the stock range
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE s.stockQuantity BETWEEN :minStock AND :maxStock AND s.isActive = true AND s.deletedAt IS NULL ORDER BY s.stockQuantity DESC, s.skuCode&quot;)
+&nbsp;  List&lt;Sku&gt; findByStockQuantityRange(
+&nbsp;      @Param(&quot;minStock&quot;) Integer minStock, @Param(&quot;maxStock&quot;) Integer maxStock);
+&nbsp;
+&nbsp;  // ===== PRICE QUERIES =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds SKUs by price range.
+&nbsp;   *
+&nbsp;   * @param minPrice minimum price
+&nbsp;   * @param maxPrice maximum price
+&nbsp;   * @return list of SKUs in the price range
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE s.price BETWEEN :minPrice AND :maxPrice AND s.isActive = true AND s.deletedAt IS NULL ORDER BY s.price ASC, s.skuCode&quot;)
+&nbsp;  List&lt;Sku&gt; findByPriceRange(
+&nbsp;      @Param(&quot;minPrice&quot;) BigDecimal minPrice, @Param(&quot;maxPrice&quot;) BigDecimal maxPrice);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds SKUs by price range with pagination.
+&nbsp;   *
+&nbsp;   * @param minPrice minimum price
+&nbsp;   * @param maxPrice maximum price
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of SKUs in the price range
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE s.price BETWEEN :minPrice AND :maxPrice AND s.isActive = true AND s.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Sku&gt; findByPriceRange(
+&nbsp;      @Param(&quot;minPrice&quot;) BigDecimal minPrice,
+&nbsp;      @Param(&quot;maxPrice&quot;) BigDecimal maxPrice,
+&nbsp;      Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds the minimum and maximum prices.
+&nbsp;   *
+&nbsp;   * @return array containing [minPrice, maxPrice]
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT MIN(s.price), MAX(s.price) FROM Sku s WHERE s.isActive = true AND s.deletedAt IS NULL&quot;)
+&nbsp;  Object[] findPriceRange();
+&nbsp;
+&nbsp;  // ===== SEARCH AND FILTER QUERIES =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Searches SKUs by variant name.
+&nbsp;   *
+&nbsp;   * @param variantName the variant name search term
+&nbsp;   * @return list of matching SKUs
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE LOWER(s.variantName) LIKE LOWER(CONCAT(&#39;%&#39;, :variantName, &#39;%&#39;)) AND s.deletedAt IS NULL ORDER BY s.variantName, s.skuCode&quot;)
+&nbsp;  List&lt;Sku&gt; findByVariantNameContainingIgnoreCase(@Param(&quot;variantName&quot;) String variantName);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds SKUs by size.
+&nbsp;   *
+&nbsp;   * @param size the size
+&nbsp;   * @return list of SKUs with the specified size
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE LOWER(s.size) = LOWER(:size) AND s.deletedAt IS NULL ORDER BY s.skuCode&quot;)
+&nbsp;  List&lt;Sku&gt; findBySizeIgnoreCase(@Param(&quot;size&quot;) String size);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds SKUs by color.
+&nbsp;   *
+&nbsp;   * @param color the color
+&nbsp;   * @return list of SKUs with the specified color
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE LOWER(s.color) = LOWER(:color) AND s.deletedAt IS NULL ORDER BY s.skuCode&quot;)
+&nbsp;  List&lt;Sku&gt; findByColorIgnoreCase(@Param(&quot;color&quot;) String color);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds SKUs by location.
+&nbsp;   *
+&nbsp;   * @param location the location
+&nbsp;   * @return list of SKUs at the specified location
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE LOWER(s.location) = LOWER(:location) AND s.deletedAt IS NULL ORDER BY s.skuCode&quot;)
+&nbsp;  List&lt;Sku&gt; findByLocationIgnoreCase(@Param(&quot;location&quot;) String location);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds SKUs by barcode.
+&nbsp;   *
+&nbsp;   * @param barcode the barcode
+&nbsp;   * @return optional containing the SKU if found
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT s FROM Sku s WHERE s.barcode = :barcode AND s.deletedAt IS NULL&quot;)
+&nbsp;  Optional&lt;Sku&gt; findByBarcode(@Param(&quot;barcode&quot;) String barcode);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds SKUs by active status.
+&nbsp;   *
+&nbsp;   * @param isActive the active status
+&nbsp;   * @return list of SKUs with the specified status
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE s.isActive = :isActive AND s.deletedAt IS NULL ORDER BY s.skuCode&quot;)
+&nbsp;  List&lt;Sku&gt; findByIsActive(@Param(&quot;isActive&quot;) Boolean isActive);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds SKUs by active status with pagination.
+&nbsp;   *
+&nbsp;   * @param isActive the active status
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of SKUs with the specified status
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT s FROM Sku s WHERE s.isActive = :isActive AND s.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Sku&gt; findByIsActive(@Param(&quot;isActive&quot;) Boolean isActive, Pageable pageable);
+&nbsp;
+&nbsp;  // ===== BUSINESS LOGIC QUERIES =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all distinct sizes.
+&nbsp;   *
+&nbsp;   * @return list of distinct sizes
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT DISTINCT s.size FROM Sku s WHERE s.size IS NOT NULL AND s.deletedAt IS NULL ORDER BY s.size&quot;)
+&nbsp;  List&lt;String&gt; findAllDistinctSizes();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all distinct colors.
+&nbsp;   *
+&nbsp;   * @return list of distinct colors
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT DISTINCT s.color FROM Sku s WHERE s.color IS NOT NULL AND s.deletedAt IS NULL ORDER BY s.color&quot;)
+&nbsp;  List&lt;String&gt; findAllDistinctColors();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all distinct locations.
+&nbsp;   *
+&nbsp;   * @return list of distinct locations
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT DISTINCT s.location FROM Sku s WHERE s.location IS NOT NULL AND s.deletedAt IS NULL ORDER BY s.location&quot;)
+&nbsp;  List&lt;String&gt; findAllDistinctLocations();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Counts SKUs by product.
+&nbsp;   *
+&nbsp;   * @param productId the product ID
+&nbsp;   * @return number of SKUs for the product
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT COUNT(s) FROM Sku s WHERE s.product.id = :productId AND s.deletedAt IS NULL&quot;)
+&nbsp;  long countByProductId(@Param(&quot;productId&quot;) Long productId);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Counts active SKUs by product.
+&nbsp;   *
+&nbsp;   * @param productId the product ID
+&nbsp;   * @return number of active SKUs for the product
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT COUNT(s) FROM Sku s WHERE s.product.id = :productId AND s.isActive = true AND s.deletedAt IS NULL&quot;)
+&nbsp;  long countActiveByProductId(@Param(&quot;productId&quot;) Long productId);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Calculates total stock value.
+&nbsp;   *
+&nbsp;   * @return total stock value
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT COALESCE(SUM(s.price * s.stockQuantity), 0) FROM Sku s WHERE s.isActive = true AND s.deletedAt IS NULL&quot;)
+&nbsp;  BigDecimal calculateTotalStockValue();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Calculates total stock value by product.
+&nbsp;   *
+&nbsp;   * @param productId the product ID
+&nbsp;   * @return total stock value for the product
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT COALESCE(SUM(s.price * s.stockQuantity), 0) FROM Sku s WHERE s.product.id = :productId AND s.isActive = true AND s.deletedAt IS NULL&quot;)
+&nbsp;  BigDecimal calculateStockValueByProductId(@Param(&quot;productId&quot;) Long productId);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds SKUs that need reordering (stock &lt;= reorder point and reorder quantity &gt; 0).
+&nbsp;   *
+&nbsp;   * @return list of SKUs that need reordering
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE s.stockQuantity &lt;= s.reorderPoint AND s.reorderQuantity &gt; 0 AND s.isActive = true AND s.deletedAt IS NULL ORDER BY s.stockQuantity ASC, s.skuCode&quot;)
+&nbsp;  List&lt;Sku&gt; findSkusNeedingReorder();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Advanced search with multiple criteria.
+&nbsp;   *
+&nbsp;   * @param searchTerm search term for SKU code/variant name
+&nbsp;   * @param productId product filter (null to ignore)
+&nbsp;   * @param size size filter (null to ignore)
+&nbsp;   * @param color color filter (null to ignore)
+&nbsp;   * @param location location filter (null to ignore)
+&nbsp;   * @param minPrice minimum price filter (null to ignore)
+&nbsp;   * @param maxPrice maximum price filter (null to ignore)
+&nbsp;   * @param minStock minimum stock filter (null to ignore)
+&nbsp;   * @param maxStock maximum stock filter (null to ignore)
+&nbsp;   * @param isActive active status filter (null to ignore)
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of matching SKUs
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE &quot;
+&nbsp;          + &quot;(:searchTerm IS NULL OR LOWER(s.skuCode) LIKE LOWER(CONCAT(&#39;%&#39;, :searchTerm, &#39;%&#39;)) OR LOWER(s.variantName) LIKE LOWER(CONCAT(&#39;%&#39;, :searchTerm, &#39;%&#39;))) AND &quot;
+&nbsp;          + &quot;(:productId IS NULL OR s.product.id = :productId) AND &quot;
+&nbsp;          + &quot;(:size IS NULL OR LOWER(s.size) = LOWER(:size)) AND &quot;
+&nbsp;          + &quot;(:color IS NULL OR LOWER(s.color) = LOWER(:color)) AND &quot;
+&nbsp;          + &quot;(:location IS NULL OR LOWER(s.location) = LOWER(:location)) AND &quot;
+&nbsp;          + &quot;(:minPrice IS NULL OR s.price &gt;= :minPrice) AND &quot;
+&nbsp;          + &quot;(:maxPrice IS NULL OR s.price &lt;= :maxPrice) AND &quot;
+&nbsp;          + &quot;(:minStock IS NULL OR s.stockQuantity &gt;= :minStock) AND &quot;
+&nbsp;          + &quot;(:maxStock IS NULL OR s.stockQuantity &lt;= :maxStock) AND &quot;
+&nbsp;          + &quot;(:isActive IS NULL OR s.isActive = :isActive) AND &quot;
+&nbsp;          + &quot;s.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Sku&gt; findWithFilters(
+&nbsp;      @Param(&quot;searchTerm&quot;) String searchTerm,
+&nbsp;      @Param(&quot;productId&quot;) Long productId,
+&nbsp;      @Param(&quot;size&quot;) String size,
+&nbsp;      @Param(&quot;color&quot;) String color,
+&nbsp;      @Param(&quot;location&quot;) String location,
+&nbsp;      @Param(&quot;minPrice&quot;) BigDecimal minPrice,
+&nbsp;      @Param(&quot;maxPrice&quot;) BigDecimal maxPrice,
+&nbsp;      @Param(&quot;minStock&quot;) Integer minStock,
+&nbsp;      @Param(&quot;maxStock&quot;) Integer maxStock,
+&nbsp;      @Param(&quot;isActive&quot;) Boolean isActive,
+&nbsp;      Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds SKUs with stock movements (having inventory transactions).
+&nbsp;   *
+&nbsp;   * @return list of SKUs with inventory transactions
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT DISTINCT s FROM Sku s JOIN s.inventoryTransactions t WHERE s.deletedAt IS NULL ORDER BY s.skuCode&quot;)
+&nbsp;  List&lt;Sku&gt; findSkusWithStockMovements();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds SKUs without stock movements (no inventory transactions).
+&nbsp;   *
+&nbsp;   * @return list of SKUs without inventory transactions
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE s.id NOT IN (SELECT DISTINCT t.sku.id FROM InventoryTransaction t) AND s.deletedAt IS NULL ORDER BY s.skuCode&quot;)
+&nbsp;  List&lt;Sku&gt; findSkusWithoutStockMovements();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Extended search with multiple filter criteria.
+&nbsp;   *
+&nbsp;   * @param skuCode filter by SKU code (null to ignore)
+&nbsp;   * @param productId filter by product ID (null to ignore)
+&nbsp;   * @param variantName filter by variant name (null to ignore)
+&nbsp;   * @param minPrice filter by minimum price (null to ignore)
+&nbsp;   * @param maxPrice filter by maximum price (null to ignore)
+&nbsp;   * @param isActive filter by active status (null to ignore)
+&nbsp;   * @param isLowStock filter by low stock status (null to ignore)
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of matching SKUs
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE &quot;
+&nbsp;          + &quot;(:skuCode IS NULL OR LOWER(s.skuCode) LIKE LOWER(CONCAT(&#39;%&#39;, :skuCode, &#39;%&#39;))) AND &quot;
+&nbsp;          + &quot;(:productId IS NULL OR s.product.id = :productId) AND &quot;
+&nbsp;          + &quot;(:variantName IS NULL OR LOWER(s.variantName) LIKE LOWER(CONCAT(&#39;%&#39;, :variantName, &#39;%&#39;))) AND &quot;
+&nbsp;          + &quot;(:minPrice IS NULL OR s.price &gt;= :minPrice) AND &quot;
+&nbsp;          + &quot;(:maxPrice IS NULL OR s.price &lt;= :maxPrice) AND &quot;
+&nbsp;          + &quot;(:isActive IS NULL OR s.isActive = :isActive) AND &quot;
+&nbsp;          + &quot;(:isLowStock IS NULL OR (:isLowStock = true AND s.stockQuantity &lt;= s.reorderPoint) OR (:isLowStock = false AND s.stockQuantity &gt; s.reorderPoint)) AND &quot;
+&nbsp;          + &quot;s.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Sku&gt; findWithExtendedFilters(
+&nbsp;      @Param(&quot;skuCode&quot;) String skuCode,
+&nbsp;      @Param(&quot;productId&quot;) Long productId,
+&nbsp;      @Param(&quot;variantName&quot;) String variantName,
+&nbsp;      @Param(&quot;minPrice&quot;) BigDecimal minPrice,
+&nbsp;      @Param(&quot;maxPrice&quot;) BigDecimal maxPrice,
+&nbsp;      @Param(&quot;isActive&quot;) Boolean isActive,
+&nbsp;      @Param(&quot;isLowStock&quot;) Boolean isLowStock,
+&nbsp;      Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Searches SKUs by code or variant name.
+&nbsp;   *
+&nbsp;   * @param query the search query
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of matching SKUs
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT s FROM Sku s WHERE &quot;
+&nbsp;          + &quot;(LOWER(s.skuCode) LIKE LOWER(CONCAT(&#39;%&#39;, :query, &#39;%&#39;)) OR LOWER(s.variantName) LIKE LOWER(CONCAT(&#39;%&#39;, :query, &#39;%&#39;))) AND &quot;
+&nbsp;          + &quot;s.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Sku&gt; findBySkuCodeOrVariantNameContainingIgnoreCase(
+&nbsp;      @Param(&quot;query&quot;) String query, Pageable pageable);
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-07-19 20:52</div>
+</div>
+</body>
+</html>

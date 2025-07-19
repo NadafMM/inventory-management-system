@@ -1,0 +1,472 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > CategoryRepository</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.inventorymanagement.category.repository</a>
+</div>
+
+<h1>Coverage Summary for Class: CategoryRepository (com.inventorymanagement.category.repository)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">CategoryRepository</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    66.7%
+  </span>
+  <span class="absValue">
+    (4/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (7/7)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">CategoryRepository$MockitoMock$AYClNR7A</td>
+  </tr>
+  <tr>
+    <td class="name">CategoryRepository$MockitoMock$AYClNR7A$auxiliary$I2KdjqnH</td>
+  </tr>
+  <tr>
+    <td class="name">CategoryRepository$MockitoMock$AYClNR7A$auxiliary$U2Yoogvf</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    66.7%
+  </span>
+  <span class="absValue">
+    (4/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (7/7)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.inventorymanagement.category.repository;
+&nbsp;
+&nbsp;import com.inventorymanagement.category.model.Category;
+&nbsp;import com.inventorymanagement.common.repository.BaseRepository;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Optional;
+&nbsp;import org.springframework.data.domain.Page;
+&nbsp;import org.springframework.data.domain.Pageable;
+&nbsp;import org.springframework.data.jpa.repository.Query;
+&nbsp;import org.springframework.data.repository.query.Param;
+&nbsp;import org.springframework.stereotype.Repository;
+&nbsp;
+&nbsp;/**
+&nbsp; * Repository interface for Category entity. Provides hierarchical query methods and
+&nbsp; * category-specific operations.
+&nbsp; */
+&nbsp;@Repository
+&nbsp;public interface CategoryRepository extends BaseRepository&lt;Category, Long&gt; {
+&nbsp;
+&nbsp;  // ===== HIERARCHICAL QUERIES =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all root categories (categories with no parent).
+&nbsp;   *
+&nbsp;   * @return list of root categories
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT c FROM Category c WHERE c.parent IS NULL AND c.deletedAt IS NULL ORDER BY c.sortOrder, c.name&quot;)
+&nbsp;  List&lt;Category&gt; findAllRootCategories();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all root categories with pagination.
+&nbsp;   *
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of root categories
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT c FROM Category c WHERE c.parent IS NULL AND c.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Category&gt; findAllRootCategories(Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all children of a specific category.
+&nbsp;   *
+&nbsp;   * @param parentId the parent category ID
+&nbsp;   * @return list of child categories
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT c FROM Category c WHERE c.parent.id = :parentId AND c.deletedAt IS NULL ORDER BY c.sortOrder, c.name&quot;)
+&nbsp;  List&lt;Category&gt; findByParentId(@Param(&quot;parentId&quot;) Long parentId);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all children of a specific category with pagination.
+&nbsp;   *
+&nbsp;   * @param parentId the parent category ID
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of child categories
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT c FROM Category c WHERE c.parent.id = :parentId AND c.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Category&gt; findByParentId(@Param(&quot;parentId&quot;) Long parentId, Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all descendants of a category using path-based query.
+&nbsp;   *
+&nbsp;   * @param path the category path pattern
+&nbsp;   * @return list of descendant categories
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT c FROM Category c WHERE c.path LIKE CONCAT(:path, &#39;%&#39;) AND c.deletedAt IS NULL ORDER BY c.level, c.sortOrder, c.name&quot;)
+&nbsp;  List&lt;Category&gt; findAllDescendantsByPath(@Param(&quot;path&quot;) String path);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all categories at a specific level.
+&nbsp;   *
+&nbsp;   * @param level the category level
+&nbsp;   * @return list of categories at the specified level
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT c FROM Category c WHERE c.level = :level AND c.deletedAt IS NULL ORDER BY c.sortOrder, c.name&quot;)
+&nbsp;  List&lt;Category&gt; findByLevel(@Param(&quot;level&quot;) Integer level);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all categories at a specific level with pagination.
+&nbsp;   *
+&nbsp;   * @param level the category level
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of categories at the specified level
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT c FROM Category c WHERE c.level = :level AND c.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Category&gt; findByLevel(@Param(&quot;level&quot;) Integer level, Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds the complete path from root to a specific category. Uses a simple approach by finding all
+&nbsp;   * categories that are ancestors of the target.
+&nbsp;   *
+&nbsp;   * @param categoryId the target category ID
+&nbsp;   * @return list of categories from root to target
+&nbsp;   */
+&nbsp;  default List&lt;Category&gt; findPathToCategory(Long categoryId) {
+<b class="fc">&nbsp;    List&lt;Category&gt; path = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;    Optional&lt;Category&gt; current = findById(categoryId);</b>
+&nbsp;
+<b class="pc">&nbsp;    while (current.isPresent() &amp;&amp; current.get().getDeletedAt() == null) {</b>
+<b class="fc">&nbsp;      path.add(0, current.get()); // Add to beginning to maintain order from root to target</b>
+<b class="fc">&nbsp;      if (current.get().getParent() != null) {</b>
+<b class="fc">&nbsp;        current = findById(current.get().getParent().getId());</b>
+&nbsp;      } else {
+&nbsp;        break;
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    return path;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  // ===== SEARCH AND FILTER QUERIES =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Searches categories by name (case-insensitive partial match).
+&nbsp;   *
+&nbsp;   * @param name the search term
+&nbsp;   * @return list of matching categories
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT c FROM Category c WHERE LOWER(c.name) LIKE LOWER(CONCAT(&#39;%&#39;, :name, &#39;%&#39;)) AND c.deletedAt IS NULL ORDER BY c.name&quot;)
+&nbsp;  List&lt;Category&gt; findByNameContainingIgnoreCase(@Param(&quot;name&quot;) String name);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Searches categories by name with pagination.
+&nbsp;   *
+&nbsp;   * @param name the search term
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of matching categories
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT c FROM Category c WHERE LOWER(c.name) LIKE LOWER(CONCAT(&#39;%&#39;, :name, &#39;%&#39;)) AND c.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Category&gt; findByNameContainingIgnoreCase(@Param(&quot;name&quot;) String name, Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Searches categories by name or description.
+&nbsp;   *
+&nbsp;   * @param searchTerm the search term
+&nbsp;   * @return list of matching categories
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT c FROM Category c WHERE (LOWER(c.name) LIKE LOWER(CONCAT(&#39;%&#39;, :searchTerm, &#39;%&#39;)) OR LOWER(c.description) LIKE LOWER(CONCAT(&#39;%&#39;, :searchTerm, &#39;%&#39;))) AND c.deletedAt IS NULL ORDER BY c.name&quot;)
+&nbsp;  List&lt;Category&gt; searchByNameOrDescription(@Param(&quot;searchTerm&quot;) String searchTerm);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Searches categories by name or description with pagination.
+&nbsp;   *
+&nbsp;   * @param searchTerm the search term
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of matching categories
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT c FROM Category c WHERE (LOWER(c.name) LIKE LOWER(CONCAT(&#39;%&#39;, :searchTerm, &#39;%&#39;)) OR LOWER(c.description) LIKE LOWER(CONCAT(&#39;%&#39;, :searchTerm, &#39;%&#39;))) AND c.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Category&gt; searchByNameOrDescription(
+&nbsp;      @Param(&quot;searchTerm&quot;) String searchTerm, Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds categories by active status.
+&nbsp;   *
+&nbsp;   * @param isActive the active status
+&nbsp;   * @return list of categories with the specified status
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT c FROM Category c WHERE c.isActive = :isActive AND c.deletedAt IS NULL ORDER BY c.name&quot;)
+&nbsp;  List&lt;Category&gt; findByIsActive(@Param(&quot;isActive&quot;) Boolean isActive);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds categories by active status with pagination.
+&nbsp;   *
+&nbsp;   * @param isActive the active status
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of categories with the specified status
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT c FROM Category c WHERE c.isActive = :isActive AND c.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Category&gt; findByIsActive(@Param(&quot;isActive&quot;) Boolean isActive, Pageable pageable);
+&nbsp;
+&nbsp;  // ===== BUSINESS LOGIC QUERIES =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds categories that have products.
+&nbsp;   *
+&nbsp;   * @return list of categories with products
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT DISTINCT c FROM Category c JOIN c.products p WHERE p.deletedAt IS NULL AND c.deletedAt IS NULL ORDER BY c.name&quot;)
+&nbsp;  List&lt;Category&gt; findCategoriesWithProducts();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds categories that have no products.
+&nbsp;   *
+&nbsp;   * @return list of categories without products
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT c FROM Category c WHERE c.id NOT IN (SELECT DISTINCT p.category.id FROM Product p WHERE p.deletedAt IS NULL) AND c.deletedAt IS NULL ORDER BY c.name&quot;)
+&nbsp;  List&lt;Category&gt; findCategoriesWithoutProducts();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds leaf categories (categories with no children).
+&nbsp;   *
+&nbsp;   * @return list of leaf categories
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT c FROM Category c WHERE c.id NOT IN (SELECT DISTINCT parent.id FROM Category parent WHERE parent.deletedAt IS NULL) AND c.deletedAt IS NULL ORDER BY c.name&quot;)
+&nbsp;  List&lt;Category&gt; findLeafCategories();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds categories with children count.
+&nbsp;   *
+&nbsp;   * @return list of categories with their children count
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT c, COUNT(child) as childCount FROM Category c LEFT JOIN c.children child WHERE c.deletedAt IS NULL AND (child.deletedAt IS NULL OR child IS NULL) GROUP BY c ORDER BY c.name&quot;)
+&nbsp;  List&lt;Object[]&gt; findCategoriesWithChildrenCount();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds categories with product count.
+&nbsp;   *
+&nbsp;   * @return list of categories with their product count
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT c, COUNT(p) as productCount FROM Category c LEFT JOIN c.products p WHERE c.deletedAt IS NULL AND (p.deletedAt IS NULL OR p IS NULL) GROUP BY c ORDER BY c.name&quot;)
+&nbsp;  List&lt;Object[]&gt; findCategoriesWithProductCount();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Counts children of a specific category.
+&nbsp;   *
+&nbsp;   * @param parentId the parent category ID
+&nbsp;   * @return number of children
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT COUNT(c) FROM Category c WHERE c.parent.id = :parentId AND c.deletedAt IS NULL&quot;)
+&nbsp;  long countChildrenByParentId(@Param(&quot;parentId&quot;) Long parentId);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Counts products in a specific category.
+&nbsp;   *
+&nbsp;   * @param categoryId the category ID
+&nbsp;   * @return number of products
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT COUNT(p) FROM Product p WHERE p.category.id = :categoryId AND p.deletedAt IS NULL&quot;)
+&nbsp;  long countProductsByCategoryId(@Param(&quot;categoryId&quot;) Long categoryId);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds categories by exact name (case-sensitive).
+&nbsp;   *
+&nbsp;   * @param name the category name
+&nbsp;   * @return optional containing the category if found
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT c FROM Category c WHERE c.name = :name AND c.deletedAt IS NULL&quot;)
+&nbsp;  Optional&lt;Category&gt; findByName(@Param(&quot;name&quot;) String name);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds categories by exact name and parent (case-sensitive).
+&nbsp;   *
+&nbsp;   * @param name the category name
+&nbsp;   * @param parentId the parent category ID
+&nbsp;   * @return optional containing the category if found
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT c FROM Category c WHERE c.name = :name AND c.parent.id = :parentId AND c.deletedAt IS NULL&quot;)
+&nbsp;  Optional&lt;Category&gt; findByNameAndParentId(
+&nbsp;      @Param(&quot;name&quot;) String name, @Param(&quot;parentId&quot;) Long parentId);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds categories by exact name and no parent (root level).
+&nbsp;   *
+&nbsp;   * @param name the category name
+&nbsp;   * @return optional containing the category if found
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT c FROM Category c WHERE c.name = :name AND c.parent IS NULL AND c.deletedAt IS NULL&quot;)
+&nbsp;  Optional&lt;Category&gt; findRootByName(@Param(&quot;name&quot;) String name);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Checks if a category name exists at the same level.
+&nbsp;   *
+&nbsp;   * @param name the category name
+&nbsp;   * @param parentId the parent category ID (null for root level)
+&nbsp;   * @param excludeId the category ID to exclude from the check
+&nbsp;   * @return true if name exists
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT COUNT(c) &gt; 0 FROM Category c WHERE c.name = :name AND (:parentId IS NULL AND c.parent IS NULL OR c.parent.id = :parentId) AND c.id != :excludeId AND c.deletedAt IS NULL&quot;)
+&nbsp;  boolean existsByNameAndParentIdExcludingId(
+&nbsp;      @Param(&quot;name&quot;) String name,
+&nbsp;      @Param(&quot;parentId&quot;) Long parentId,
+&nbsp;      @Param(&quot;excludeId&quot;) Long excludeId);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds the maximum sort order for categories at the same level.
+&nbsp;   *
+&nbsp;   * @param parentId the parent category ID (null for root level)
+&nbsp;   * @return maximum sort order
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT COALESCE(MAX(c.sortOrder), 0) FROM Category c WHERE (:parentId IS NULL AND c.parent IS NULL OR c.parent.id = :parentId) AND c.deletedAt IS NULL&quot;)
+&nbsp;  Integer findMaxSortOrderByParentId(@Param(&quot;parentId&quot;) Long parentId);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Advanced search with multiple filter criteria.
+&nbsp;   *
+&nbsp;   * @param name filter by name (null to ignore)
+&nbsp;   * @param parentId filter by parent ID (null to ignore)
+&nbsp;   * @param level filter by level (null to ignore)
+&nbsp;   * @param isActive filter by active status (null to ignore)
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of matching categories
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT c FROM Category c WHERE &quot;
+&nbsp;          + &quot;(:name IS NULL OR LOWER(c.name) LIKE LOWER(CONCAT(&#39;%&#39;, :name, &#39;%&#39;))) AND &quot;
+&nbsp;          + &quot;(:parentId IS NULL OR c.parent.id = :parentId) AND &quot;
+&nbsp;          + &quot;(:level IS NULL OR c.level = :level) AND &quot;
+&nbsp;          + &quot;(:isActive IS NULL OR c.isActive = :isActive) AND &quot;
+&nbsp;          + &quot;c.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;Category&gt; findWithFilters(
+&nbsp;      @Param(&quot;name&quot;) String name,
+&nbsp;      @Param(&quot;parentId&quot;) Long parentId,
+&nbsp;      @Param(&quot;level&quot;) Integer level,
+&nbsp;      @Param(&quot;isActive&quot;) Boolean isActive,
+&nbsp;      Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all active categories ordered by path for hierarchy display.
+&nbsp;   *
+&nbsp;   * @return list of active categories ordered by path
+&nbsp;   */
+&nbsp;  @Query(
+&nbsp;      &quot;SELECT c FROM Category c WHERE c.isActive = true AND c.deletedAt IS NULL ORDER BY c.path, c.sortOrder&quot;)
+&nbsp;  List&lt;Category&gt; findAllActiveOrderedByPath();
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-07-19 20:52</div>
+</div>
+</body>
+</html>

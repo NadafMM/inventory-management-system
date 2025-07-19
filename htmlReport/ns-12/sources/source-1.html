@@ -1,0 +1,195 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > BaseRepository</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.inventorymanagement.common.repository</a>
+</div>
+
+<h1>Coverage Summary for Class: BaseRepository (com.inventorymanagement.common.repository)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">BaseRepository</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.inventorymanagement.common.repository;
+&nbsp;
+&nbsp;import java.time.LocalDateTime;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Optional;
+&nbsp;import org.springframework.data.domain.Page;
+&nbsp;import org.springframework.data.domain.Pageable;
+&nbsp;import org.springframework.data.jpa.repository.JpaRepository;
+&nbsp;import org.springframework.data.jpa.repository.Modifying;
+&nbsp;import org.springframework.data.jpa.repository.Query;
+&nbsp;import org.springframework.data.repository.NoRepositoryBean;
+&nbsp;import org.springframework.data.repository.query.Param;
+&nbsp;
+&nbsp;/**
+&nbsp; * Base repository interface providing common functionality for all entities. Includes soft delete
+&nbsp; * support and common query methods.
+&nbsp; *
+&nbsp; * @param &lt;T&gt; the entity type
+&nbsp; * @param &lt;ID&gt; the entity ID type
+&nbsp; */
+&nbsp;@NoRepositoryBean
+&nbsp;public interface BaseRepository&lt;T, ID&gt; extends JpaRepository&lt;T, ID&gt; {
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all active (non-deleted) entities.
+&nbsp;   *
+&nbsp;   * @return list of active entities
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT e FROM #{#entityName} e WHERE e.deletedAt IS NULL&quot;)
+&nbsp;  List&lt;T&gt; findAllActive();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all active (non-deleted) entities with pagination.
+&nbsp;   *
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of active entities
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT e FROM #{#entityName} e WHERE e.deletedAt IS NULL&quot;)
+&nbsp;  Page&lt;T&gt; findAllActive(Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds an active (non-deleted) entity by ID.
+&nbsp;   *
+&nbsp;   * @param id the entity ID
+&nbsp;   * @return optional containing the entity if found and active
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT e FROM #{#entityName} e WHERE e.id = :id AND e.deletedAt IS NULL&quot;)
+&nbsp;  Optional&lt;T&gt; findActiveById(@Param(&quot;id&quot;) ID id);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Checks if an active entity exists by ID.
+&nbsp;   *
+&nbsp;   * @param id the entity ID
+&nbsp;   * @return true if an active entity exists with the given ID
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT COUNT(e) &gt; 0 FROM #{#entityName} e WHERE e.id = :id AND e.deletedAt IS NULL&quot;)
+&nbsp;  boolean existsActiveById(@Param(&quot;id&quot;) ID id);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Counts all active (non-deleted) entities.
+&nbsp;   *
+&nbsp;   * @return count of active entities
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT COUNT(e) FROM #{#entityName} e WHERE e.deletedAt IS NULL&quot;)
+&nbsp;  long countActive();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Soft deletes an entity by setting the deletedAt timestamp.
+&nbsp;   *
+&nbsp;   * @param id the entity ID to soft delete
+&nbsp;   * @return number of entities updated
+&nbsp;   */
+&nbsp;  @Modifying
+&nbsp;  @Query(
+&nbsp;      &quot;UPDATE #{#entityName} e SET e.deletedAt = :deletedAt, e.updatedAt = :updatedAt WHERE e.id =&quot;
+&nbsp;          + &quot; :id&quot;)
+&nbsp;  int softDeleteById(
+&nbsp;      @Param(&quot;id&quot;) ID id,
+&nbsp;      @Param(&quot;deletedAt&quot;) LocalDateTime deletedAt,
+&nbsp;      @Param(&quot;updatedAt&quot;) LocalDateTime updatedAt);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Restores a soft-deleted entity by clearing the deletedAt timestamp.
+&nbsp;   *
+&nbsp;   * @param id the entity ID to restore
+&nbsp;   * @return number of entities updated
+&nbsp;   */
+&nbsp;  @Modifying
+&nbsp;  @Query(
+&nbsp;      &quot;UPDATE #{#entityName} e SET e.deletedAt = NULL, e.updatedAt = :updatedAt WHERE e.id = :id&quot;)
+&nbsp;  int restoreById(@Param(&quot;id&quot;) ID id, @Param(&quot;updatedAt&quot;) LocalDateTime updatedAt);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all soft-deleted entities.
+&nbsp;   *
+&nbsp;   * @return list of soft-deleted entities
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT e FROM #{#entityName} e WHERE e.deletedAt IS NOT NULL&quot;)
+&nbsp;  List&lt;T&gt; findAllDeleted();
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds all soft-deleted entities with pagination.
+&nbsp;   *
+&nbsp;   * @param pageable pagination information
+&nbsp;   * @return page of soft-deleted entities
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT e FROM #{#entityName} e WHERE e.deletedAt IS NOT NULL&quot;)
+&nbsp;  Page&lt;T&gt; findAllDeleted(Pageable pageable);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds entities created after a specific date.
+&nbsp;   *
+&nbsp;   * @param date the date to search from
+&nbsp;   * @return list of entities created after the date
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT e FROM #{#entityName} e WHERE e.createdAt &gt; :date AND e.deletedAt IS NULL&quot;)
+&nbsp;  List&lt;T&gt; findActiveCreatedAfter(@Param(&quot;date&quot;) LocalDateTime date);
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Finds entities updated after a specific date.
+&nbsp;   *
+&nbsp;   * @param date the date to search from
+&nbsp;   * @return list of entities updated after the date
+&nbsp;   */
+&nbsp;  @Query(&quot;SELECT e FROM #{#entityName} e WHERE e.updatedAt &gt; :date AND e.deletedAt IS NULL&quot;)
+&nbsp;  List&lt;T&gt; findActiveUpdatedAfter(@Param(&quot;date&quot;) LocalDateTime date);
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-07-19 20:52</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,988 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > SkuController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.inventorymanagement.inventory.controller</a>
+</div>
+
+<h1>Coverage Summary for Class: SkuController (com.inventorymanagement.inventory.controller)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">SkuController</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (19/19)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    52.9%
+  </span>
+  <span class="absValue">
+    (18/34)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    89.2%
+  </span>
+  <span class="absValue">
+    (124/139)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">SkuController$$SpringCGLIB$$0</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (19/19)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    52.9%
+  </span>
+  <span class="absValue">
+    (18/34)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    89.2%
+  </span>
+  <span class="absValue">
+    (124/139)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.inventorymanagement.inventory.controller;
+&nbsp;
+&nbsp;import com.inventorymanagement.common.model.ApiResponse;
+&nbsp;import com.inventorymanagement.common.model.BulkOperationRequest;
+&nbsp;import com.inventorymanagement.common.model.BulkOperationResponse;
+&nbsp;import com.inventorymanagement.common.model.PagedResponse;
+&nbsp;import com.inventorymanagement.inventory.model.SkuDto;
+&nbsp;import com.inventorymanagement.inventory.service.InventoryService;
+&nbsp;import com.inventorymanagement.inventory.service.SkuService;
+&nbsp;import io.swagger.v3.oas.annotations.Operation;
+&nbsp;import io.swagger.v3.oas.annotations.Parameter;
+&nbsp;import io.swagger.v3.oas.annotations.media.Content;
+&nbsp;import io.swagger.v3.oas.annotations.media.Schema;
+&nbsp;import io.swagger.v3.oas.annotations.responses.ApiResponses;
+&nbsp;import io.swagger.v3.oas.annotations.tags.Tag;
+&nbsp;import jakarta.servlet.http.HttpServletRequest;
+&nbsp;import jakarta.validation.Valid;
+&nbsp;import jakarta.validation.constraints.Max;
+&nbsp;import jakarta.validation.constraints.Min;
+&nbsp;import jakarta.validation.constraints.NotNull;
+&nbsp;import java.math.BigDecimal;
+&nbsp;import java.util.List;
+&nbsp;import org.slf4j.Logger;
+&nbsp;import org.slf4j.LoggerFactory;
+&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.data.domain.Page;
+&nbsp;import org.springframework.data.domain.PageRequest;
+&nbsp;import org.springframework.data.domain.Pageable;
+&nbsp;import org.springframework.data.domain.Sort;
+&nbsp;import org.springframework.http.HttpStatus;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.util.StringUtils;
+&nbsp;import org.springframework.web.bind.annotation.DeleteMapping;
+&nbsp;import org.springframework.web.bind.annotation.GetMapping;
+&nbsp;import org.springframework.web.bind.annotation.PathVariable;
+&nbsp;import org.springframework.web.bind.annotation.PostMapping;
+&nbsp;import org.springframework.web.bind.annotation.PutMapping;
+&nbsp;import org.springframework.web.bind.annotation.RequestBody;
+&nbsp;import org.springframework.web.bind.annotation.RequestMapping;
+&nbsp;import org.springframework.web.bind.annotation.RequestParam;
+&nbsp;import org.springframework.web.bind.annotation.RestController;
+&nbsp;
+&nbsp;/**
+&nbsp; * REST controller for SKU management operations. Provides comprehensive CRUD operations, search,
+&nbsp; * filtering, bulk operations, and inventory management.
+&nbsp; *
+&nbsp; * @version 1.0.0
+&nbsp; * @since 2025-01-15
+&nbsp; */
+&nbsp;@RestController
+&nbsp;@RequestMapping(&quot;/v1/skus&quot;)
+&nbsp;@Tag(name = &quot;SKU Management&quot;, description = &quot;Operations for managing SKUs and inventory&quot;)
+<b class="fc">&nbsp;public class SkuController {</b>
+&nbsp;
+<b class="fc">&nbsp;  private static final Logger logger = LoggerFactory.getLogger(SkuController.class);</b>
+&nbsp;
+&nbsp;  @Autowired private SkuService skuService;
+&nbsp;
+&nbsp;  @Autowired private InventoryService inventoryService;
+&nbsp;
+&nbsp;  // ===== CRUD OPERATIONS =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Create a new SKU.
+&nbsp;   *
+&nbsp;   * @param skuDto the SKU data
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return the created SKU
+&nbsp;   */
+&nbsp;  @PostMapping
+&nbsp;  @Operation(summary = &quot;Create SKU&quot;, description = &quot;Create a new SKU&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;201&quot;,
+&nbsp;            description = &quot;SKU created successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid request data&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;403&quot;,
+&nbsp;            description = &quot;Forbidden&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;409&quot;,
+&nbsp;            description = &quot;SKU already exists&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;SkuDto&gt;&gt; createSku(
+&nbsp;      @Valid @RequestBody SkuDto skuDto, HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.info(&quot;Creating new SKU: {}&quot;, skuDto.getSkuCode());</b>
+&nbsp;
+<b class="fc">&nbsp;    SkuDto createdSku = skuService.createSku(skuDto);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;SkuDto&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;SKU created successfully&quot;, createdSku, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.status(HttpStatus.CREATED).body(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Get SKU by ID.
+&nbsp;   *
+&nbsp;   * @param id the SKU ID
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return the SKU
+&nbsp;   */
+&nbsp;  @GetMapping(&quot;/{id}&quot;)
+&nbsp;  @Operation(summary = &quot;Get SKU&quot;, description = &quot;Retrieve a SKU by its ID&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;SKU retrieved successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;404&quot;,
+&nbsp;            description = &quot;SKU not found&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;SkuDto&gt;&gt; getSkuById(
+&nbsp;      @PathVariable @NotNull Long id, HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.debug(&quot;Retrieving SKU with ID: {}&quot;, id);</b>
+&nbsp;
+<b class="fc">&nbsp;    SkuDto sku = skuService.getSkuById(id);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;SkuDto&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;SKU retrieved successfully&quot;, sku, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Get SKU by SKU code.
+&nbsp;   *
+&nbsp;   * @param skuCode the SKU code
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return the SKU
+&nbsp;   */
+&nbsp;  @GetMapping(&quot;/code/{skuCode}&quot;)
+&nbsp;  @Operation(summary = &quot;Get SKU by Code&quot;, description = &quot;Retrieve a SKU by its code&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;SKU retrieved successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;404&quot;,
+&nbsp;            description = &quot;SKU not found&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;SkuDto&gt;&gt; getSkuByCode(
+&nbsp;      @PathVariable @NotNull String skuCode, HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.debug(&quot;Retrieving SKU with code: {}&quot;, skuCode);</b>
+&nbsp;
+<b class="fc">&nbsp;    SkuDto sku = skuService.getSkuByCode(skuCode);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;SkuDto&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;SKU retrieved successfully&quot;, sku, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Update an existing SKU.
+&nbsp;   *
+&nbsp;   * @param id the SKU ID
+&nbsp;   * @param skuDto the updated SKU data
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return the updated SKU
+&nbsp;   */
+&nbsp;  @PutMapping(&quot;/{id}&quot;)
+&nbsp;  @Operation(summary = &quot;Update SKU&quot;, description = &quot;Update an existing SKU&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;SKU updated successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid request data&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;403&quot;,
+&nbsp;            description = &quot;Forbidden&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;404&quot;,
+&nbsp;            description = &quot;SKU not found&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;SkuDto&gt;&gt; updateSku(
+&nbsp;      @PathVariable @NotNull Long id,
+&nbsp;      @Valid @RequestBody SkuDto skuDto,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.info(&quot;Updating SKU with ID: {}&quot;, id);</b>
+&nbsp;
+<b class="fc">&nbsp;    SkuDto updatedSku = skuService.updateSku(id, skuDto);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;SkuDto&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;SKU updated successfully&quot;, updatedSku, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Delete a SKU.
+&nbsp;   *
+&nbsp;   * @param id the SKU ID
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return confirmation message
+&nbsp;   */
+&nbsp;  @DeleteMapping(&quot;/{id}&quot;)
+&nbsp;  @Operation(summary = &quot;Delete SKU&quot;, description = &quot;Delete a SKU by its ID&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;SKU deleted successfully&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;403&quot;,
+&nbsp;            description = &quot;Forbidden&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;404&quot;,
+&nbsp;            description = &quot;SKU not found&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;409&quot;,
+&nbsp;            description = &quot;SKU has dependencies&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; deleteSku(
+&nbsp;      @PathVariable @NotNull Long id, HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.info(&quot;Deleting SKU with ID: {}&quot;, id);</b>
+&nbsp;
+<b class="fc">&nbsp;    skuService.deleteSku(id);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;Void&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;SKU deleted successfully&quot;, null, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  // ===== SEARCH AND FILTERING =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Get all SKUs with pagination and filtering.
+&nbsp;   *
+&nbsp;   * @param page page number (0-based)
+&nbsp;   * @param size page size
+&nbsp;   * @param sortBy sort field
+&nbsp;   * @param sortDir sort direction
+&nbsp;   * @param skuCode filter by SKU code
+&nbsp;   * @param productId filter by product ID
+&nbsp;   * @param variantName filter by variant name
+&nbsp;   * @param minPrice filter by minimum price
+&nbsp;   * @param maxPrice filter by maximum price
+&nbsp;   * @param isActive filter by active status
+&nbsp;   * @param isLowStock filter by low stock status
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return paginated list of SKUs
+&nbsp;   */
+&nbsp;  @GetMapping
+&nbsp;  @Operation(
+&nbsp;      summary = &quot;Get All SKUs&quot;,
+&nbsp;      description = &quot;Retrieve all SKUs with pagination and filtering&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;SKUs retrieved successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = PagedResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid request parameters&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;PagedResponse&lt;SkuDto&gt;&gt;&gt; getAllSkus(
+&nbsp;      @RequestParam(defaultValue = &quot;0&quot;) @Min(0) int page,
+&nbsp;      @RequestParam(defaultValue = &quot;20&quot;) @Min(1) @Max(100) int size,
+&nbsp;      @RequestParam(defaultValue = &quot;skuCode&quot;) String sortBy,
+&nbsp;      @RequestParam(defaultValue = &quot;asc&quot;) String sortDir,
+&nbsp;      @RequestParam(required = false) String skuCode,
+&nbsp;      @RequestParam(required = false) Long productId,
+&nbsp;      @RequestParam(required = false) String variantName,
+&nbsp;      @RequestParam(required = false) BigDecimal minPrice,
+&nbsp;      @RequestParam(required = false) BigDecimal maxPrice,
+&nbsp;      @RequestParam(required = false) Boolean isActive,
+&nbsp;      @RequestParam(required = false) Boolean isLowStock,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.debug(</b>
+&nbsp;        &quot;Retrieving SKUs with filters - page: {}, size: {}, skuCode: {}, productId: {}, isActive: {}&quot;,
+<b class="fc">&nbsp;        page,</b>
+<b class="fc">&nbsp;        size,</b>
+&nbsp;        skuCode,
+&nbsp;        productId,
+&nbsp;        isActive);
+&nbsp;
+&nbsp;    // Build sort
+&nbsp;    Sort.Direction direction =
+<b class="pc">&nbsp;        sortDir.equalsIgnoreCase(&quot;desc&quot;) ? Sort.Direction.DESC : Sort.Direction.ASC;</b>
+<b class="fc">&nbsp;    Sort sort = Sort.by(direction, sortBy);</b>
+<b class="fc">&nbsp;    Pageable pageable = PageRequest.of(page, size, sort);</b>
+&nbsp;
+&nbsp;    // Apply filters and get results
+&nbsp;    Page&lt;SkuDto&gt; skusPage;
+<b class="fc">&nbsp;    if (hasFilters(skuCode, productId, variantName, minPrice, maxPrice, isActive, isLowStock)) {</b>
+<b class="fc">&nbsp;      skusPage =</b>
+<b class="fc">&nbsp;          skuService.searchSkus(</b>
+&nbsp;              skuCode, productId, variantName, minPrice, maxPrice, isActive, isLowStock, pageable);
+&nbsp;    } else {
+<b class="fc">&nbsp;      skusPage = skuService.getAllSkus(pageable);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // Build response with pagination links
+<b class="fc">&nbsp;    String baseUrl = request.getRequestURL().toString();</b>
+<b class="fc">&nbsp;    PagedResponse&lt;SkuDto&gt; pagedResponse = PagedResponse.of(skusPage, baseUrl);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;PagedResponse&lt;SkuDto&gt;&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;SKUs retrieved successfully&quot;, pagedResponse, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Search SKUs by code or variant name.
+&nbsp;   *
+&nbsp;   * @param query search query
+&nbsp;   * @param page page number
+&nbsp;   * @param size page size
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return search results
+&nbsp;   */
+&nbsp;  @GetMapping(&quot;/search&quot;)
+&nbsp;  @Operation(summary = &quot;Search SKUs&quot;, description = &quot;Search SKUs by code or variant name&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Search completed successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = PagedResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid search parameters&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;PagedResponse&lt;SkuDto&gt;&gt;&gt; searchSkus(
+&nbsp;      @RequestParam @Parameter(description = &quot;Search query&quot;) String query,
+&nbsp;      @RequestParam(defaultValue = &quot;0&quot;) @Min(0) int page,
+&nbsp;      @RequestParam(defaultValue = &quot;20&quot;) @Min(1) @Max(100) int size,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.debug(&quot;Searching SKUs with query: {}&quot;, query);</b>
+&nbsp;
+<b class="fc">&nbsp;    Pageable pageable = PageRequest.of(page, size);</b>
+<b class="fc">&nbsp;    Page&lt;SkuDto&gt; skusPage = skuService.searchSkusByCodeOrVariant(query, pageable);</b>
+&nbsp;
+<b class="fc">&nbsp;    String baseUrl = request.getRequestURL().toString();</b>
+<b class="fc">&nbsp;    PagedResponse&lt;SkuDto&gt; pagedResponse = PagedResponse.of(skusPage, baseUrl);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;PagedResponse&lt;SkuDto&gt;&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(</b>
+<b class="fc">&nbsp;            &quot;Search completed successfully&quot;, pagedResponse, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Get SKUs by product.
+&nbsp;   *
+&nbsp;   * @param productId the product ID
+&nbsp;   * @param page page number
+&nbsp;   * @param size page size
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return SKUs for the product
+&nbsp;   */
+&nbsp;  @GetMapping(&quot;/product/{productId}&quot;)
+&nbsp;  @Operation(summary = &quot;Get SKUs by Product&quot;, description = &quot;Retrieve SKUs for a specific product&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;SKUs retrieved successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = PagedResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;404&quot;,
+&nbsp;            description = &quot;Product not found&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;PagedResponse&lt;SkuDto&gt;&gt;&gt; getSkusByProduct(
+&nbsp;      @PathVariable @NotNull Long productId,
+&nbsp;      @RequestParam(defaultValue = &quot;0&quot;) @Min(0) int page,
+&nbsp;      @RequestParam(defaultValue = &quot;20&quot;) @Min(1) @Max(100) int size,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.debug(&quot;Retrieving SKUs for product ID: {}&quot;, productId);</b>
+&nbsp;
+<b class="fc">&nbsp;    Pageable pageable = PageRequest.of(page, size);</b>
+<b class="fc">&nbsp;    Page&lt;SkuDto&gt; skusPage = skuService.getSkusByProduct(productId, pageable);</b>
+&nbsp;
+<b class="fc">&nbsp;    String baseUrl = request.getRequestURL().toString();</b>
+<b class="fc">&nbsp;    PagedResponse&lt;SkuDto&gt; pagedResponse = PagedResponse.of(skusPage, baseUrl);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;PagedResponse&lt;SkuDto&gt;&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;SKUs retrieved successfully&quot;, pagedResponse, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Get low stock SKUs.
+&nbsp;   *
+&nbsp;   * @param page page number
+&nbsp;   * @param size page size
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return low stock SKUs
+&nbsp;   */
+&nbsp;  @GetMapping(&quot;/low-stock&quot;)
+&nbsp;  @Operation(summary = &quot;Get Low Stock SKUs&quot;, description = &quot;Retrieve SKUs with low stock levels&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Low stock SKUs retrieved successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = PagedResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;PagedResponse&lt;SkuDto&gt;&gt;&gt; getLowStockSkus(
+&nbsp;      @RequestParam(defaultValue = &quot;0&quot;) @Min(0) int page,
+&nbsp;      @RequestParam(defaultValue = &quot;20&quot;) @Min(1) @Max(100) int size,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.debug(&quot;Retrieving low stock SKUs&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;    Pageable pageable = PageRequest.of(page, size);</b>
+<b class="fc">&nbsp;    Page&lt;SkuDto&gt; skusPage = skuService.getLowStockSkus(pageable);</b>
+&nbsp;
+<b class="fc">&nbsp;    String baseUrl = request.getRequestURL().toString();</b>
+<b class="fc">&nbsp;    PagedResponse&lt;SkuDto&gt; pagedResponse = PagedResponse.of(skusPage, baseUrl);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;PagedResponse&lt;SkuDto&gt;&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(</b>
+<b class="fc">&nbsp;            &quot;Low stock SKUs retrieved successfully&quot;, pagedResponse, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  // ===== INVENTORY OPERATIONS =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Add stock to a SKU.
+&nbsp;   *
+&nbsp;   * @param id the SKU ID
+&nbsp;   * @param quantity quantity to add
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return updated SKU
+&nbsp;   */
+&nbsp;  @PostMapping(&quot;/{id}/stock/add&quot;)
+&nbsp;  @Operation(summary = &quot;Add Stock&quot;, description = &quot;Add stock quantity to a SKU&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Stock added successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid quantity&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;403&quot;,
+&nbsp;            description = &quot;Forbidden&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;404&quot;,
+&nbsp;            description = &quot;SKU not found&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;SkuDto&gt;&gt; addStock(
+&nbsp;      @PathVariable @NotNull Long id,
+&nbsp;      @RequestParam @Min(1) int quantity,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.info(&quot;Adding {} stock to SKU with ID: {}&quot;, quantity, id);</b>
+&nbsp;
+<b class="fc">&nbsp;    SkuDto updatedSku = skuService.addStock(id, quantity);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;SkuDto&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;Stock added successfully&quot;, updatedSku, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Remove stock from a SKU.
+&nbsp;   *
+&nbsp;   * @param id the SKU ID
+&nbsp;   * @param quantity quantity to remove
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return updated SKU
+&nbsp;   */
+&nbsp;  @PostMapping(&quot;/{id}/stock/remove&quot;)
+&nbsp;  @Operation(summary = &quot;Remove Stock&quot;, description = &quot;Remove stock quantity from a SKU&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Stock removed successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid quantity or insufficient stock&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;403&quot;,
+&nbsp;            description = &quot;Forbidden&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;404&quot;,
+&nbsp;            description = &quot;SKU not found&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;SkuDto&gt;&gt; removeStock(
+&nbsp;      @PathVariable @NotNull Long id,
+&nbsp;      @RequestParam @Min(1) int quantity,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.info(&quot;Removing {} stock from SKU with ID: {}&quot;, quantity, id);</b>
+&nbsp;
+<b class="fc">&nbsp;    SkuDto updatedSku = skuService.removeStock(id, quantity);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;SkuDto&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;Stock removed successfully&quot;, updatedSku, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Reserve stock for a SKU.
+&nbsp;   *
+&nbsp;   * @param id the SKU ID
+&nbsp;   * @param quantity quantity to reserve
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return updated SKU
+&nbsp;   */
+&nbsp;  @PostMapping(&quot;/{id}/stock/reserve&quot;)
+&nbsp;  @Operation(summary = &quot;Reserve Stock&quot;, description = &quot;Reserve stock quantity for a SKU&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Stock reserved successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid quantity or insufficient stock&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;403&quot;,
+&nbsp;            description = &quot;Forbidden&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;404&quot;,
+&nbsp;            description = &quot;SKU not found&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;SkuDto&gt;&gt; reserveStock(
+&nbsp;      @PathVariable @NotNull Long id,
+&nbsp;      @RequestParam @Min(1) int quantity,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.info(&quot;Reserving {} stock for SKU with ID: {}&quot;, quantity, id);</b>
+&nbsp;
+<b class="fc">&nbsp;    SkuDto updatedSku = skuService.reserveStock(id, quantity);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;SkuDto&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;Stock reserved successfully&quot;, updatedSku, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Release reserved stock for a SKU.
+&nbsp;   *
+&nbsp;   * @param id the SKU ID
+&nbsp;   * @param quantity quantity to release
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return updated SKU
+&nbsp;   */
+&nbsp;  @PostMapping(&quot;/{id}/stock/release&quot;)
+&nbsp;  @Operation(summary = &quot;Release Stock&quot;, description = &quot;Release reserved stock quantity for a SKU&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Stock released successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid quantity or insufficient reserved stock&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;403&quot;,
+&nbsp;            description = &quot;Forbidden&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;404&quot;,
+&nbsp;            description = &quot;SKU not found&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;SkuDto&gt;&gt; releaseStock(
+&nbsp;      @PathVariable @NotNull Long id,
+&nbsp;      @RequestParam @Min(1) int quantity,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.info(&quot;Releasing {} reserved stock for SKU with ID: {}&quot;, quantity, id);</b>
+&nbsp;
+<b class="fc">&nbsp;    SkuDto updatedSku = skuService.releaseStock(id, quantity);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;SkuDto&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;Stock released successfully&quot;, updatedSku, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  // ===== BULK OPERATIONS =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Bulk create SKUs.
+&nbsp;   *
+&nbsp;   * @param bulkRequest bulk operation request
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return bulk operation result
+&nbsp;   */
+&nbsp;  @PostMapping(&quot;/bulk&quot;)
+&nbsp;  @Operation(
+&nbsp;      summary = &quot;Bulk Create SKUs&quot;,
+&nbsp;      description = &quot;Create multiple SKUs in a single operation&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Bulk operation completed&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = BulkOperationResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid request data&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;403&quot;,
+&nbsp;            description = &quot;Forbidden&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;BulkOperationResponse&lt;SkuDto&gt;&gt;&gt; bulkCreateSkus(
+&nbsp;      @Valid @RequestBody BulkOperationRequest&lt;SkuDto&gt; bulkRequest, HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.info(&quot;Bulk creating {} SKUs&quot;, bulkRequest.getItems().size());</b>
+&nbsp;
+<b class="fc">&nbsp;    long startTime = System.currentTimeMillis();</b>
+<b class="fc">&nbsp;    BulkOperationResponse&lt;SkuDto&gt; bulkResponse = new BulkOperationResponse&lt;&gt;();</b>
+&nbsp;
+<b class="fc">&nbsp;    for (int i = 0; i &lt; bulkRequest.getItems().size(); i++) {</b>
+<b class="fc">&nbsp;      SkuDto skuDto = bulkRequest.getItems().get(i);</b>
+&nbsp;      try {
+<b class="fc">&nbsp;        SkuDto createdSku = skuService.createSku(skuDto);</b>
+<b class="fc">&nbsp;        bulkResponse.addResult(createdSku);</b>
+&nbsp;      } catch (Exception e) {
+<b class="nc">&nbsp;        logger.error(&quot;Failed to create SKU at index {}: {}&quot;, i, e.getMessage());</b>
+&nbsp;
+<b class="nc">&nbsp;        BulkOperationResponse.BulkOperationError error =</b>
+&nbsp;            new BulkOperationResponse.BulkOperationError(
+<b class="nc">&nbsp;                i, e.getMessage(), &quot;CREATION_FAILED&quot;, skuDto);</b>
+<b class="nc">&nbsp;        bulkResponse.addError(error);</b>
+&nbsp;
+<b class="nc">&nbsp;        if (bulkRequest.getOptions() != null &amp;&amp; !bulkRequest.getOptions().isContinueOnError()) {</b>
+&nbsp;          break;
+&nbsp;        }
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    bulkResponse.setExecutionTimeMs(System.currentTimeMillis() - startTime);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;BulkOperationResponse&lt;SkuDto&gt;&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;Bulk operation completed&quot;, bulkResponse, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Bulk update SKUs.
+&nbsp;   *
+&nbsp;   * @param bulkRequest bulk operation request
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return bulk operation result
+&nbsp;   */
+&nbsp;  @PutMapping(&quot;/bulk&quot;)
+&nbsp;  @Operation(
+&nbsp;      summary = &quot;Bulk Update SKUs&quot;,
+&nbsp;      description = &quot;Update multiple SKUs in a single operation&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Bulk operation completed&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = BulkOperationResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid request data&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;403&quot;,
+&nbsp;            description = &quot;Forbidden&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;BulkOperationResponse&lt;SkuDto&gt;&gt;&gt; bulkUpdateSkus(
+&nbsp;      @Valid @RequestBody BulkOperationRequest&lt;SkuDto&gt; bulkRequest, HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.info(&quot;Bulk updating {} SKUs&quot;, bulkRequest.getItems().size());</b>
+&nbsp;
+<b class="fc">&nbsp;    long startTime = System.currentTimeMillis();</b>
+<b class="fc">&nbsp;    BulkOperationResponse&lt;SkuDto&gt; bulkResponse = new BulkOperationResponse&lt;&gt;();</b>
+&nbsp;
+<b class="fc">&nbsp;    for (int i = 0; i &lt; bulkRequest.getItems().size(); i++) {</b>
+<b class="fc">&nbsp;      SkuDto skuDto = bulkRequest.getItems().get(i);</b>
+&nbsp;      try {
+<b class="pc">&nbsp;        if (skuDto.getId() == null) {</b>
+<b class="nc">&nbsp;          throw new IllegalArgumentException(&quot;SKU ID is required for update operation&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        SkuDto updatedSku = skuService.updateSku(skuDto.getId(), skuDto);</b>
+<b class="fc">&nbsp;        bulkResponse.addResult(updatedSku);</b>
+&nbsp;      } catch (Exception e) {
+<b class="nc">&nbsp;        logger.error(&quot;Failed to update SKU at index {}: {}&quot;, i, e.getMessage());</b>
+&nbsp;
+<b class="nc">&nbsp;        BulkOperationResponse.BulkOperationError error =</b>
+&nbsp;            new BulkOperationResponse.BulkOperationError(
+<b class="nc">&nbsp;                i, e.getMessage(), &quot;UPDATE_FAILED&quot;, skuDto);</b>
+<b class="nc">&nbsp;        bulkResponse.addError(error);</b>
+&nbsp;
+<b class="nc">&nbsp;        if (bulkRequest.getOptions() != null &amp;&amp; !bulkRequest.getOptions().isContinueOnError()) {</b>
+&nbsp;          break;
+&nbsp;        }
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    bulkResponse.setExecutionTimeMs(System.currentTimeMillis() - startTime);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;BulkOperationResponse&lt;SkuDto&gt;&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;Bulk operation completed&quot;, bulkResponse, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Bulk delete SKUs.
+&nbsp;   *
+&nbsp;   * @param ids list of SKU IDs to delete
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return bulk operation result
+&nbsp;   */
+&nbsp;  @DeleteMapping(&quot;/bulk&quot;)
+&nbsp;  @Operation(
+&nbsp;      summary = &quot;Bulk Delete SKUs&quot;,
+&nbsp;      description = &quot;Delete multiple SKUs in a single operation&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Bulk operation completed&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = BulkOperationResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid request data&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;403&quot;,
+&nbsp;            description = &quot;Forbidden&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;BulkOperationResponse&lt;Long&gt;&gt;&gt; bulkDeleteSkus(
+&nbsp;      @RequestBody List&lt;Long&gt; ids, HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.info(&quot;Bulk deleting {} SKUs&quot;, ids.size());</b>
+&nbsp;
+<b class="fc">&nbsp;    long startTime = System.currentTimeMillis();</b>
+<b class="fc">&nbsp;    BulkOperationResponse&lt;Long&gt; bulkResponse = new BulkOperationResponse&lt;&gt;();</b>
+&nbsp;
+<b class="fc">&nbsp;    for (int i = 0; i &lt; ids.size(); i++) {</b>
+<b class="fc">&nbsp;      Long id = ids.get(i);</b>
+&nbsp;      try {
+<b class="fc">&nbsp;        skuService.deleteSku(id);</b>
+<b class="fc">&nbsp;        bulkResponse.addResult(id);</b>
+&nbsp;      } catch (Exception e) {
+<b class="nc">&nbsp;        logger.error(&quot;Failed to delete SKU at index {}: {}&quot;, i, e.getMessage());</b>
+&nbsp;
+<b class="nc">&nbsp;        BulkOperationResponse.BulkOperationError error =</b>
+<b class="nc">&nbsp;            new BulkOperationResponse.BulkOperationError(i, e.getMessage(), &quot;DELETION_FAILED&quot;, id);</b>
+<b class="nc">&nbsp;        bulkResponse.addError(error);</b>
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    bulkResponse.setExecutionTimeMs(System.currentTimeMillis() - startTime);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;BulkOperationResponse&lt;Long&gt;&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;Bulk operation completed&quot;, bulkResponse, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  // ===== HELPER METHODS =====
+&nbsp;
+&nbsp;  private boolean hasFilters(
+&nbsp;      String skuCode,
+&nbsp;      Long productId,
+&nbsp;      String variantName,
+&nbsp;      BigDecimal minPrice,
+&nbsp;      BigDecimal maxPrice,
+&nbsp;      Boolean isActive,
+&nbsp;      Boolean isLowStock) {
+<b class="pc">&nbsp;    return StringUtils.hasText(skuCode)</b>
+&nbsp;        || productId != null
+<b class="pc">&nbsp;        || StringUtils.hasText(variantName)</b>
+&nbsp;        || minPrice != null
+&nbsp;        || maxPrice != null
+&nbsp;        || isActive != null
+&nbsp;        || isLowStock != null;
+&nbsp;  }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-07-19 20:52</div>
+</div>
+</body>
+</html>

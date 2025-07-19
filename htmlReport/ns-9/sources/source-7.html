@@ -1,0 +1,567 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > PagedResponse</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.inventorymanagement.common.model</a>
+</div>
+
+<h1>Coverage Summary for Class: PagedResponse (com.inventorymanagement.common.model)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">PagedResponse</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (14/14)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    91.7%
+  </span>
+  <span class="absValue">
+    (11/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (38/38)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">PagedResponse$PageLinks</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (16/16)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    83.3%
+  </span>
+  <span class="absValue">
+    (15/18)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (32/32)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">PagedResponse$PageMetadata</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (21/21)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    78.6%
+  </span>
+  <span class="absValue">
+    (11/14)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (34/34)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (51/51)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    84.1%
+  </span>
+  <span class="absValue">
+    (37/44)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (104/104)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.inventorymanagement.common.model;
+&nbsp;
+&nbsp;import com.fasterxml.jackson.annotation.JsonInclude;
+&nbsp;import com.fasterxml.jackson.annotation.JsonProperty;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Objects;
+&nbsp;import org.springframework.data.domain.Page;
+&nbsp;
+&nbsp;/**
+&nbsp; * Paged response wrapper for paginated API responses. Provides pagination metadata along with the
+&nbsp; * data.
+&nbsp; *
+&nbsp; * @param &lt;T&gt; the type of data being returned
+&nbsp; * @version 1.0.0
+&nbsp; * @since 2025-01-15
+&nbsp; */
+&nbsp;@JsonInclude(JsonInclude.Include.NON_NULL)
+&nbsp;public class PagedResponse&lt;T&gt; {
+&nbsp;
+&nbsp;  private List&lt;T&gt; content;
+&nbsp;  private PageMetadata meta;
+&nbsp;  private PageLinks links;
+&nbsp;
+&nbsp;  // Constructors
+<b class="fc">&nbsp;  public PagedResponse() {}</b>
+&nbsp;
+<b class="fc">&nbsp;  public PagedResponse(List&lt;T&gt; content, PageMetadata meta) {</b>
+<b class="fc">&nbsp;    this.content = content;</b>
+<b class="fc">&nbsp;    this.meta = meta;</b>
+&nbsp;  }
+&nbsp;
+<b class="fc">&nbsp;  public PagedResponse(List&lt;T&gt; content, PageMetadata meta, PageLinks links) {</b>
+<b class="fc">&nbsp;    this.content = content;</b>
+<b class="fc">&nbsp;    this.meta = meta;</b>
+<b class="fc">&nbsp;    this.links = links;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  // Static factory method to create from Spring Data Page
+&nbsp;  public static &lt;T&gt; PagedResponse&lt;T&gt; of(Page&lt;T&gt; page) {
+<b class="fc">&nbsp;    return of(page, null);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  public static &lt;T&gt; PagedResponse&lt;T&gt; of(Page&lt;T&gt; page, String baseUrl) {
+<b class="fc">&nbsp;    PageMetadata meta =</b>
+&nbsp;        new PageMetadata(
+<b class="fc">&nbsp;            page.getTotalElements(),</b>
+<b class="fc">&nbsp;            page.getNumber(),</b>
+<b class="fc">&nbsp;            page.getSize(),</b>
+<b class="fc">&nbsp;            page.getTotalPages(),</b>
+<b class="fc">&nbsp;            page.isFirst(),</b>
+<b class="fc">&nbsp;            page.isLast(),</b>
+<b class="fc">&nbsp;            page.hasNext(),</b>
+<b class="fc">&nbsp;            page.hasPrevious());</b>
+&nbsp;
+<b class="fc">&nbsp;    PageLinks links = null;</b>
+<b class="fc">&nbsp;    if (baseUrl != null) {</b>
+<b class="fc">&nbsp;      links = new PageLinks(baseUrl, page.getNumber(), page.getSize(), page.getTotalPages());</b>
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    return new PagedResponse&lt;&gt;(page.getContent(), meta, links);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  // Getters and setters
+&nbsp;  public List&lt;T&gt; getContent() {
+<b class="fc">&nbsp;    return content;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  public void setContent(List&lt;T&gt; content) {
+<b class="fc">&nbsp;    this.content = content;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  public PageMetadata getMeta() {
+<b class="fc">&nbsp;    return meta;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  public void setMeta(PageMetadata meta) {
+<b class="fc">&nbsp;    this.meta = meta;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  public PageLinks getLinks() {
+<b class="fc">&nbsp;    return links;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  public void setLinks(PageLinks links) {
+<b class="fc">&nbsp;    this.links = links;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  @Override
+&nbsp;  public boolean equals(Object obj) {
+<b class="fc">&nbsp;    if (this == obj) {</b>
+<b class="fc">&nbsp;      return true;</b>
+&nbsp;    }
+<b class="fc">&nbsp;    if (obj == null || getClass() != obj.getClass()) {</b>
+<b class="fc">&nbsp;      return false;</b>
+&nbsp;    }
+<b class="fc">&nbsp;    PagedResponse&lt;?&gt; that = (PagedResponse&lt;?&gt;) obj;</b>
+<b class="fc">&nbsp;    return Objects.equals(content, that.content)</b>
+<b class="pc">&nbsp;        &amp;&amp; Objects.equals(meta, that.meta)</b>
+<b class="fc">&nbsp;        &amp;&amp; Objects.equals(links, that.links);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  @Override
+&nbsp;  public int hashCode() {
+<b class="fc">&nbsp;    return Objects.hash(content, meta, links);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  @Override
+&nbsp;  public String toString() {
+<b class="fc">&nbsp;    return &quot;PagedResponse{&quot; + &quot;content=&quot; + content + &quot;, meta=&quot; + meta + &quot;, links=&quot; + links + &#39;}&#39;;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /** Pagination metadata information. */
+&nbsp;  @JsonInclude(JsonInclude.Include.NON_NULL)
+&nbsp;  public static class PageMetadata {
+&nbsp;
+&nbsp;    @JsonProperty(&quot;total_elements&quot;)
+&nbsp;    private long totalElements;
+&nbsp;
+&nbsp;    @JsonProperty(&quot;page_number&quot;)
+&nbsp;    private int pageNumber;
+&nbsp;
+&nbsp;    @JsonProperty(&quot;page_size&quot;)
+&nbsp;    private int pageSize;
+&nbsp;
+&nbsp;    @JsonProperty(&quot;total_pages&quot;)
+&nbsp;    private int totalPages;
+&nbsp;
+&nbsp;    @JsonProperty(&quot;is_first&quot;)
+&nbsp;    private boolean isFirst;
+&nbsp;
+&nbsp;    @JsonProperty(&quot;is_last&quot;)
+&nbsp;    private boolean isLast;
+&nbsp;
+&nbsp;    @JsonProperty(&quot;has_next&quot;)
+&nbsp;    private boolean hasNext;
+&nbsp;
+&nbsp;    @JsonProperty(&quot;has_previous&quot;)
+&nbsp;    private boolean hasPrevious;
+&nbsp;
+<b class="fc">&nbsp;    public PageMetadata() {}</b>
+&nbsp;
+&nbsp;    public PageMetadata(
+&nbsp;        long totalElements,
+&nbsp;        int pageNumber,
+&nbsp;        int pageSize,
+&nbsp;        int totalPages,
+&nbsp;        boolean isFirst,
+&nbsp;        boolean isLast,
+&nbsp;        boolean hasNext,
+<b class="fc">&nbsp;        boolean hasPrevious) {</b>
+<b class="fc">&nbsp;      this.totalElements = totalElements;</b>
+<b class="fc">&nbsp;      this.pageNumber = pageNumber;</b>
+<b class="fc">&nbsp;      this.pageSize = pageSize;</b>
+<b class="fc">&nbsp;      this.totalPages = totalPages;</b>
+<b class="fc">&nbsp;      this.isFirst = isFirst;</b>
+<b class="fc">&nbsp;      this.isLast = isLast;</b>
+<b class="fc">&nbsp;      this.hasNext = hasNext;</b>
+<b class="fc">&nbsp;      this.hasPrevious = hasPrevious;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // Getters and setters
+&nbsp;    public long getTotalElements() {
+<b class="fc">&nbsp;      return totalElements;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setTotalElements(long totalElements) {
+<b class="fc">&nbsp;      this.totalElements = totalElements;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public int getPageNumber() {
+<b class="fc">&nbsp;      return pageNumber;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setPageNumber(int pageNumber) {
+<b class="fc">&nbsp;      this.pageNumber = pageNumber;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public int getPageSize() {
+<b class="fc">&nbsp;      return pageSize;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setPageSize(int pageSize) {
+<b class="fc">&nbsp;      this.pageSize = pageSize;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public int getTotalPages() {
+<b class="fc">&nbsp;      return totalPages;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setTotalPages(int totalPages) {
+<b class="fc">&nbsp;      this.totalPages = totalPages;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public boolean isFirst() {
+<b class="fc">&nbsp;      return isFirst;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setFirst(boolean first) {
+<b class="fc">&nbsp;      isFirst = first;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public boolean isLast() {
+<b class="fc">&nbsp;      return isLast;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setLast(boolean last) {
+<b class="fc">&nbsp;      isLast = last;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public boolean isHasNext() {
+<b class="fc">&nbsp;      return hasNext;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setHasNext(boolean hasNext) {
+<b class="fc">&nbsp;      this.hasNext = hasNext;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public boolean isHasPrevious() {
+<b class="fc">&nbsp;      return hasPrevious;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setHasPrevious(boolean hasPrevious) {
+<b class="fc">&nbsp;      this.hasPrevious = hasPrevious;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public boolean equals(Object obj) {
+<b class="fc">&nbsp;      if (this == obj) {</b>
+<b class="fc">&nbsp;        return true;</b>
+&nbsp;      }
+<b class="fc">&nbsp;      if (obj == null || getClass() != obj.getClass()) {</b>
+<b class="fc">&nbsp;        return false;</b>
+&nbsp;      }
+<b class="fc">&nbsp;      PageMetadata that = (PageMetadata) obj;</b>
+<b class="pc">&nbsp;      return totalElements == that.totalElements</b>
+&nbsp;          &amp;&amp; pageNumber == that.pageNumber
+&nbsp;          &amp;&amp; pageSize == that.pageSize
+&nbsp;          &amp;&amp; totalPages == that.totalPages;
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public int hashCode() {
+<b class="fc">&nbsp;      return Objects.hash(totalElements, pageNumber, pageSize, totalPages);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public String toString() {
+<b class="fc">&nbsp;      return &quot;PageMetadata{&quot;</b>
+&nbsp;          + &quot;totalElements=&quot;
+&nbsp;          + totalElements
+&nbsp;          + &quot;, pageNumber=&quot;
+&nbsp;          + pageNumber
+&nbsp;          + &quot;, pageSize=&quot;
+&nbsp;          + pageSize
+&nbsp;          + &quot;, totalPages=&quot;
+&nbsp;          + totalPages
+&nbsp;          + &quot;, isFirst=&quot;
+&nbsp;          + isFirst
+&nbsp;          + &quot;, isLast=&quot;
+&nbsp;          + isLast
+&nbsp;          + &quot;, hasNext=&quot;
+&nbsp;          + hasNext
+&nbsp;          + &quot;, hasPrevious=&quot;
+&nbsp;          + hasPrevious
+&nbsp;          + &#39;}&#39;;
+&nbsp;    }
+&nbsp;  }
+&nbsp;
+&nbsp;  /** Pagination links for navigation. */
+&nbsp;  @JsonInclude(JsonInclude.Include.NON_NULL)
+&nbsp;  public static class PageLinks {
+&nbsp;
+&nbsp;    private String self;
+&nbsp;    private String first;
+&nbsp;    private String last;
+&nbsp;    private String next;
+&nbsp;    private String previous;
+&nbsp;
+<b class="fc">&nbsp;    public PageLinks() {}</b>
+&nbsp;
+<b class="fc">&nbsp;    public PageLinks(String baseUrl, int currentPage, int pageSize, int totalPages) {</b>
+<b class="fc">&nbsp;      this.self = buildUrl(baseUrl, currentPage, pageSize);</b>
+<b class="fc">&nbsp;      this.first = buildUrl(baseUrl, 0, pageSize);</b>
+<b class="fc">&nbsp;      this.last = buildUrl(baseUrl, totalPages - 1, pageSize);</b>
+&nbsp;
+<b class="fc">&nbsp;      if (currentPage &gt; 0) {</b>
+<b class="fc">&nbsp;        this.previous = buildUrl(baseUrl, currentPage - 1, pageSize);</b>
+&nbsp;      }
+&nbsp;
+<b class="fc">&nbsp;      if (currentPage &lt; totalPages - 1) {</b>
+<b class="fc">&nbsp;        this.next = buildUrl(baseUrl, currentPage + 1, pageSize);</b>
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+&nbsp;    private String buildUrl(String baseUrl, int page, int size) {
+<b class="fc">&nbsp;      return baseUrl + &quot;?page=&quot; + page + &quot;&amp;size=&quot; + size;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // Getters and setters
+&nbsp;    public String getSelf() {
+<b class="fc">&nbsp;      return self;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setSelf(String self) {
+<b class="fc">&nbsp;      this.self = self;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String getFirst() {
+<b class="fc">&nbsp;      return first;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setFirst(String first) {
+<b class="fc">&nbsp;      this.first = first;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String getLast() {
+<b class="fc">&nbsp;      return last;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setLast(String last) {
+<b class="fc">&nbsp;      this.last = last;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String getNext() {
+<b class="fc">&nbsp;      return next;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setNext(String next) {
+<b class="fc">&nbsp;      this.next = next;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String getPrevious() {
+<b class="fc">&nbsp;      return previous;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setPrevious(String previous) {
+<b class="fc">&nbsp;      this.previous = previous;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public boolean equals(Object obj) {
+<b class="fc">&nbsp;      if (this == obj) {</b>
+<b class="fc">&nbsp;        return true;</b>
+&nbsp;      }
+<b class="fc">&nbsp;      if (obj == null || getClass() != obj.getClass()) {</b>
+<b class="fc">&nbsp;        return false;</b>
+&nbsp;      }
+<b class="fc">&nbsp;      PageLinks pageLinks = (PageLinks) obj;</b>
+<b class="fc">&nbsp;      return Objects.equals(self, pageLinks.self)</b>
+<b class="pc">&nbsp;          &amp;&amp; Objects.equals(first, pageLinks.first)</b>
+<b class="pc">&nbsp;          &amp;&amp; Objects.equals(last, pageLinks.last)</b>
+<b class="pc">&nbsp;          &amp;&amp; Objects.equals(next, pageLinks.next)</b>
+<b class="fc">&nbsp;          &amp;&amp; Objects.equals(previous, pageLinks.previous);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public int hashCode() {
+<b class="fc">&nbsp;      return Objects.hash(self, first, last, next, previous);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public String toString() {
+<b class="fc">&nbsp;      return &quot;PageLinks{&quot;</b>
+&nbsp;          + &quot;self=&#39;&quot;
+&nbsp;          + self
+&nbsp;          + &#39;\&#39;&#39;
+&nbsp;          + &quot;, first=&#39;&quot;
+&nbsp;          + first
+&nbsp;          + &#39;\&#39;&#39;
+&nbsp;          + &quot;, last=&#39;&quot;
+&nbsp;          + last
+&nbsp;          + &#39;\&#39;&#39;
+&nbsp;          + &quot;, next=&#39;&quot;
+&nbsp;          + next
+&nbsp;          + &#39;\&#39;&#39;
+&nbsp;          + &quot;, previous=&#39;&quot;
+&nbsp;          + previous
+&nbsp;          + &#39;\&#39;&#39;
+&nbsp;          + &#39;}&#39;;
+&nbsp;    }
+&nbsp;  }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-07-19 20:52</div>
+</div>
+</body>
+</html>

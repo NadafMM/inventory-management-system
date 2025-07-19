@@ -1,0 +1,704 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > CategoryController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.inventorymanagement.category.controller</a>
+</div>
+
+<h1>Coverage Summary for Class: CategoryController (com.inventorymanagement.category.controller)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">CategoryController</td>
+<td class="coverageStat">
+  <span class="percent">
+    85.7%
+  </span>
+  <span class="absValue">
+    (12/14)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    28.6%
+  </span>
+  <span class="absValue">
+    (8/28)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    67.6%
+  </span>
+  <span class="absValue">
+    (75/111)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">CategoryController$$SpringCGLIB$$0</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    85.7%
+  </span>
+  <span class="absValue">
+    (12/14)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    28.6%
+  </span>
+  <span class="absValue">
+    (8/28)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    67.6%
+  </span>
+  <span class="absValue">
+    (75/111)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.inventorymanagement.category.controller;
+&nbsp;
+&nbsp;import com.inventorymanagement.category.model.CategoryDto;
+&nbsp;import com.inventorymanagement.category.service.CategoryService;
+&nbsp;import com.inventorymanagement.common.model.ApiResponse;
+&nbsp;import com.inventorymanagement.common.model.BulkOperationRequest;
+&nbsp;import com.inventorymanagement.common.model.BulkOperationResponse;
+&nbsp;import com.inventorymanagement.common.model.PagedResponse;
+&nbsp;import io.swagger.v3.oas.annotations.Operation;
+&nbsp;import io.swagger.v3.oas.annotations.Parameter;
+&nbsp;import io.swagger.v3.oas.annotations.media.Content;
+&nbsp;import io.swagger.v3.oas.annotations.media.Schema;
+&nbsp;import io.swagger.v3.oas.annotations.responses.ApiResponses;
+&nbsp;import io.swagger.v3.oas.annotations.tags.Tag;
+&nbsp;import jakarta.servlet.http.HttpServletRequest;
+&nbsp;import jakarta.validation.Valid;
+&nbsp;import jakarta.validation.constraints.Max;
+&nbsp;import jakarta.validation.constraints.Min;
+&nbsp;import jakarta.validation.constraints.NotBlank;
+&nbsp;import jakarta.validation.constraints.NotNull;
+&nbsp;import java.util.List;
+&nbsp;import org.slf4j.Logger;
+&nbsp;import org.slf4j.LoggerFactory;
+&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.data.domain.Page;
+&nbsp;import org.springframework.data.domain.PageRequest;
+&nbsp;import org.springframework.data.domain.Pageable;
+&nbsp;import org.springframework.data.domain.Sort;
+&nbsp;import org.springframework.http.HttpStatus;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.util.StringUtils;
+&nbsp;import org.springframework.validation.annotation.Validated;
+&nbsp;import org.springframework.web.bind.annotation.DeleteMapping;
+&nbsp;import org.springframework.web.bind.annotation.GetMapping;
+&nbsp;import org.springframework.web.bind.annotation.PathVariable;
+&nbsp;import org.springframework.web.bind.annotation.PostMapping;
+&nbsp;import org.springframework.web.bind.annotation.PutMapping;
+&nbsp;import org.springframework.web.bind.annotation.RequestBody;
+&nbsp;import org.springframework.web.bind.annotation.RequestMapping;
+&nbsp;import org.springframework.web.bind.annotation.RequestParam;
+&nbsp;import org.springframework.web.bind.annotation.RestController;
+&nbsp;
+&nbsp;/**
+&nbsp; * REST controller for Category management operations. Provides comprehensive CRUD operations,
+&nbsp; * search, filtering, and bulk operations.
+&nbsp; *
+&nbsp; * @version 1.0.0
+&nbsp; * @since 2025-01-15
+&nbsp; */
+&nbsp;@RestController
+&nbsp;@RequestMapping(&quot;/v1/categories&quot;)
+&nbsp;@Tag(name = &quot;Category Management&quot;, description = &quot;Operations for managing product categories&quot;)
+<b class="fc">&nbsp;public class CategoryController {</b>
+&nbsp;
+<b class="fc">&nbsp;  private static final Logger logger = LoggerFactory.getLogger(CategoryController.class);</b>
+&nbsp;
+&nbsp;  @Autowired private CategoryService categoryService;
+&nbsp;
+&nbsp;  // ===== CRUD OPERATIONS =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Create a new category.
+&nbsp;   *
+&nbsp;   * @param categoryDto the category data
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return the created category
+&nbsp;   */
+&nbsp;  @PostMapping
+&nbsp;  @Operation(summary = &quot;Create Category&quot;, description = &quot;Create a new product category&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;201&quot;,
+&nbsp;            description = &quot;Category created successfully&quot;,
+&nbsp;            content =
+&nbsp;                @Content(
+&nbsp;                    schema =
+&nbsp;                        @Schema(
+&nbsp;                            implementation =
+&nbsp;                                com.inventorymanagement.common.model.ApiResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid request data&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;409&quot;,
+&nbsp;            description = &quot;Category already exists&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;com.inventorymanagement.common.model.ApiResponse&lt;CategoryDto&gt;&gt;
+&nbsp;      createCategory(
+&nbsp;          @Validated(CategoryDto.CreateGroup.class) @RequestBody CategoryDto categoryDto,
+&nbsp;          HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.info(&quot;Creating new category: {}&quot;, categoryDto.getName());</b>
+&nbsp;
+<b class="fc">&nbsp;    CategoryDto createdCategory = categoryService.createCategory(categoryDto);</b>
+&nbsp;
+<b class="fc">&nbsp;    com.inventorymanagement.common.model.ApiResponse&lt;CategoryDto&gt; response =</b>
+<b class="fc">&nbsp;        com.inventorymanagement.common.model.ApiResponse.success(</b>
+<b class="fc">&nbsp;            &quot;Category created successfully&quot;, createdCategory, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.status(HttpStatus.CREATED).body(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Get category by ID.
+&nbsp;   *
+&nbsp;   * @param id the category ID
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return the category
+&nbsp;   */
+&nbsp;  @GetMapping(&quot;/{id}&quot;)
+&nbsp;  @Operation(summary = &quot;Get Category&quot;, description = &quot;Retrieve a category by its ID&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Category retrieved successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;404&quot;,
+&nbsp;            description = &quot;Category not found&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;CategoryDto&gt;&gt; getCategoryById(
+&nbsp;      @PathVariable @NotNull @Min(1) Long id, HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.debug(&quot;Retrieving category with ID: {}&quot;, id);</b>
+&nbsp;
+<b class="fc">&nbsp;    CategoryDto category = categoryService.getCategoryById(id);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;CategoryDto&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;Category retrieved successfully&quot;, category, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Update an existing category.
+&nbsp;   *
+&nbsp;   * @param id the category ID
+&nbsp;   * @param categoryDto the updated category data
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return the updated category
+&nbsp;   */
+&nbsp;  @PutMapping(&quot;/{id}&quot;)
+&nbsp;  @Operation(summary = &quot;Update Category&quot;, description = &quot;Update an existing category&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Category updated successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid request data&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;404&quot;,
+&nbsp;            description = &quot;Category not found&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;CategoryDto&gt;&gt; updateCategory(
+&nbsp;      @PathVariable @NotNull Long id,
+&nbsp;      @Validated(CategoryDto.UpdateGroup.class) @RequestBody CategoryDto categoryDto,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.info(&quot;Updating category with ID: {}&quot;, id);</b>
+&nbsp;
+<b class="fc">&nbsp;    CategoryDto updatedCategory = categoryService.updateCategory(id, categoryDto);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;CategoryDto&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(</b>
+<b class="fc">&nbsp;            &quot;Category updated successfully&quot;, updatedCategory, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Delete a category.
+&nbsp;   *
+&nbsp;   * @param id the category ID
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return confirmation message
+&nbsp;   */
+&nbsp;  @DeleteMapping(&quot;/{id}&quot;)
+&nbsp;  @Operation(summary = &quot;Delete Category&quot;, description = &quot;Delete a category by its ID&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Category deleted successfully&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;404&quot;,
+&nbsp;            description = &quot;Category not found&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;409&quot;,
+&nbsp;            description = &quot;Category has dependencies&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; deleteCategory(
+&nbsp;      @PathVariable @NotNull Long id, HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.info(&quot;Deleting category with ID: {}&quot;, id);</b>
+&nbsp;
+<b class="fc">&nbsp;    categoryService.deleteCategory(id);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;Void&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;Category deleted successfully&quot;, null, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  // ===== SEARCH AND FILTERING =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Get all categories with pagination and filtering.
+&nbsp;   *
+&nbsp;   * @param page page number (0-based)
+&nbsp;   * @param size page size
+&nbsp;   * @param sortBy sort field
+&nbsp;   * @param sortDir sort direction
+&nbsp;   * @param name filter by name
+&nbsp;   * @param parentId filter by parent ID
+&nbsp;   * @param level filter by level
+&nbsp;   * @param isActive filter by active status
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return paginated list of categories
+&nbsp;   */
+&nbsp;  @GetMapping
+&nbsp;  @Operation(
+&nbsp;      summary = &quot;Get All Categories&quot;,
+&nbsp;      description = &quot;Retrieve all categories with pagination and filtering&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Categories retrieved successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = PagedResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid request parameters&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;PagedResponse&lt;CategoryDto&gt;&gt;&gt; getAllCategories(
+&nbsp;      @RequestParam(defaultValue = &quot;0&quot;) @Min(0) int page,
+&nbsp;      @RequestParam(defaultValue = &quot;20&quot;) @Min(1) @Max(100) int size,
+&nbsp;      @RequestParam(defaultValue = &quot;name&quot;) String sortBy,
+&nbsp;      @RequestParam(defaultValue = &quot;asc&quot;) String sortDir,
+&nbsp;      @RequestParam(required = false) String name,
+&nbsp;      @RequestParam(required = false) Long parentId,
+&nbsp;      @RequestParam(required = false) Integer level,
+&nbsp;      @RequestParam(required = false) Boolean isActive,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.debug(</b>
+&nbsp;        &quot;Retrieving categories with filters - page: {}, size: {}, name: {}, parentId: {}, level: {}, isActive: {}&quot;,
+<b class="fc">&nbsp;        page,</b>
+<b class="fc">&nbsp;        size,</b>
+&nbsp;        name,
+&nbsp;        parentId,
+&nbsp;        level,
+&nbsp;        isActive);
+&nbsp;
+&nbsp;    // Build sort
+&nbsp;    Sort.Direction direction =
+<b class="pc">&nbsp;        sortDir.equalsIgnoreCase(&quot;desc&quot;) ? Sort.Direction.DESC : Sort.Direction.ASC;</b>
+<b class="fc">&nbsp;    Sort sort = Sort.by(direction, sortBy);</b>
+<b class="fc">&nbsp;    Pageable pageable = PageRequest.of(page, size, sort);</b>
+&nbsp;
+&nbsp;    // Apply filters and get results
+&nbsp;    Page&lt;CategoryDto&gt; categoriesPage;
+<b class="pc">&nbsp;    if (hasFilters(name, parentId, level, isActive)) {</b>
+<b class="nc">&nbsp;      categoriesPage = categoryService.searchCategories(name, parentId, level, isActive, pageable);</b>
+&nbsp;    } else {
+<b class="fc">&nbsp;      categoriesPage = categoryService.getAllCategories(pageable);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // Build response with pagination links
+<b class="fc">&nbsp;    String baseUrl = request.getRequestURL().toString();</b>
+<b class="fc">&nbsp;    PagedResponse&lt;CategoryDto&gt; pagedResponse = PagedResponse.of(categoriesPage, baseUrl);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;PagedResponse&lt;CategoryDto&gt;&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(</b>
+<b class="fc">&nbsp;            &quot;Categories retrieved successfully&quot;, pagedResponse, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Search categories by name.
+&nbsp;   *
+&nbsp;   * @param query search query
+&nbsp;   * @param page page number
+&nbsp;   * @param size page size
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return search results
+&nbsp;   */
+&nbsp;  @GetMapping(&quot;/search&quot;)
+&nbsp;  @Operation(summary = &quot;Search Categories&quot;, description = &quot;Search categories by name&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Search completed successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = PagedResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid search parameters&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;PagedResponse&lt;CategoryDto&gt;&gt;&gt; searchCategories(
+&nbsp;      @RequestParam @Parameter(description = &quot;Search query&quot;) @NotBlank String query,
+&nbsp;      @RequestParam(defaultValue = &quot;0&quot;) @Min(0) int page,
+&nbsp;      @RequestParam(defaultValue = &quot;20&quot;) @Min(1) @Max(100) int size,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.debug(&quot;Searching categories with query: {}&quot;, query);</b>
+&nbsp;
+<b class="fc">&nbsp;    Pageable pageable = PageRequest.of(page, size);</b>
+<b class="fc">&nbsp;    Page&lt;CategoryDto&gt; categoriesPage = categoryService.searchCategoriesByName(query, pageable);</b>
+&nbsp;
+<b class="fc">&nbsp;    String baseUrl = request.getRequestURL().toString();</b>
+<b class="fc">&nbsp;    PagedResponse&lt;CategoryDto&gt; pagedResponse = PagedResponse.of(categoriesPage, baseUrl);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;PagedResponse&lt;CategoryDto&gt;&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(</b>
+<b class="fc">&nbsp;            &quot;Search completed successfully&quot;, pagedResponse, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Get category hierarchy (tree structure).
+&nbsp;   *
+&nbsp;   * @param rootId root category ID (optional)
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return category hierarchy
+&nbsp;   */
+&nbsp;  @GetMapping(&quot;/hierarchy&quot;)
+&nbsp;  @Operation(
+&nbsp;      summary = &quot;Get Category Hierarchy&quot;,
+&nbsp;      description = &quot;Retrieve category hierarchy as a tree structure&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Hierarchy retrieved successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;List&lt;CategoryDto&gt;&gt;&gt; getCategoryHierarchy(
+&nbsp;      @RequestParam(required = false) Long rootId, HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.debug(&quot;Retrieving category hierarchy with root ID: {}&quot;, rootId);</b>
+&nbsp;
+<b class="fc">&nbsp;    List&lt;CategoryDto&gt; hierarchy = categoryService.getCategoryHierarchy(rootId);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;List&lt;CategoryDto&gt;&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(</b>
+<b class="fc">&nbsp;            &quot;Category hierarchy retrieved successfully&quot;, hierarchy, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Get child categories of a specific category.
+&nbsp;   *
+&nbsp;   * @param id parent category ID
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return list of child categories
+&nbsp;   */
+&nbsp;  @GetMapping(&quot;/{id}/children&quot;)
+&nbsp;  @Operation(
+&nbsp;      summary = &quot;Get Child Categories&quot;,
+&nbsp;      description = &quot;Retrieve all child categories of a specific category&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Child categories retrieved successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;404&quot;,
+&nbsp;            description = &quot;Parent category not found&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;List&lt;CategoryDto&gt;&gt;&gt; getChildCategories(
+&nbsp;      @PathVariable @NotNull Long id, HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.debug(&quot;Retrieving child categories for parent ID: {}&quot;, id);</b>
+&nbsp;
+<b class="fc">&nbsp;    List&lt;CategoryDto&gt; children = categoryService.getChildCategories(id);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;List&lt;CategoryDto&gt;&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(</b>
+<b class="fc">&nbsp;            &quot;Child categories retrieved successfully&quot;, children, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  // ===== BULK OPERATIONS =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Bulk create categories.
+&nbsp;   *
+&nbsp;   * @param bulkRequest bulk operation request
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return bulk operation result
+&nbsp;   */
+&nbsp;  @PostMapping(&quot;/bulk&quot;)
+&nbsp;  @Operation(
+&nbsp;      summary = &quot;Bulk Create Categories&quot;,
+&nbsp;      description = &quot;Create multiple categories in a single operation&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Bulk operation completed&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = BulkOperationResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid request data&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;BulkOperationResponse&lt;CategoryDto&gt;&gt;&gt; bulkCreateCategories(
+&nbsp;      @Valid @RequestBody BulkOperationRequest&lt;CategoryDto&gt; bulkRequest,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="nc">&nbsp;    logger.info(&quot;Bulk creating {} categories&quot;, bulkRequest.getItems().size());</b>
+&nbsp;
+<b class="nc">&nbsp;    long startTime = System.currentTimeMillis();</b>
+<b class="nc">&nbsp;    BulkOperationResponse&lt;CategoryDto&gt; bulkResponse = new BulkOperationResponse&lt;&gt;();</b>
+&nbsp;
+<b class="nc">&nbsp;    for (int i = 0; i &lt; bulkRequest.getItems().size(); i++) {</b>
+<b class="nc">&nbsp;      CategoryDto categoryDto = bulkRequest.getItems().get(i);</b>
+&nbsp;      try {
+<b class="nc">&nbsp;        CategoryDto createdCategory = categoryService.createCategory(categoryDto);</b>
+<b class="nc">&nbsp;        bulkResponse.addResult(createdCategory);</b>
+&nbsp;      } catch (Exception e) {
+<b class="nc">&nbsp;        logger.error(&quot;Failed to create category at index {}: {}&quot;, i, e.getMessage());</b>
+&nbsp;
+<b class="nc">&nbsp;        BulkOperationResponse.BulkOperationError error =</b>
+&nbsp;            new BulkOperationResponse.BulkOperationError(
+<b class="nc">&nbsp;                i, e.getMessage(), &quot;CREATION_FAILED&quot;, categoryDto);</b>
+<b class="nc">&nbsp;        bulkResponse.addError(error);</b>
+&nbsp;
+<b class="nc">&nbsp;        if (bulkRequest.getOptions() != null &amp;&amp; !bulkRequest.getOptions().isContinueOnError()) {</b>
+&nbsp;          break;
+&nbsp;        }
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    bulkResponse.setExecutionTimeMs(System.currentTimeMillis() - startTime);</b>
+&nbsp;
+<b class="nc">&nbsp;    ApiResponse&lt;BulkOperationResponse&lt;CategoryDto&gt;&gt; response =</b>
+<b class="nc">&nbsp;        ApiResponse.success(&quot;Bulk operation completed&quot;, bulkResponse, request.getRequestURI());</b>
+&nbsp;
+<b class="nc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Bulk update categories.
+&nbsp;   *
+&nbsp;   * @param bulkRequest bulk operation request
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return bulk operation result
+&nbsp;   */
+&nbsp;  @PutMapping(&quot;/bulk&quot;)
+&nbsp;  @Operation(
+&nbsp;      summary = &quot;Bulk Update Categories&quot;,
+&nbsp;      description = &quot;Update multiple categories in a single operation&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Bulk operation completed&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = BulkOperationResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid request data&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;BulkOperationResponse&lt;CategoryDto&gt;&gt;&gt; bulkUpdateCategories(
+&nbsp;      @Valid @RequestBody BulkOperationRequest&lt;CategoryDto&gt; bulkRequest,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="nc">&nbsp;    logger.info(&quot;Bulk updating {} categories&quot;, bulkRequest.getItems().size());</b>
+&nbsp;
+<b class="nc">&nbsp;    long startTime = System.currentTimeMillis();</b>
+<b class="nc">&nbsp;    BulkOperationResponse&lt;CategoryDto&gt; bulkResponse = new BulkOperationResponse&lt;&gt;();</b>
+&nbsp;
+<b class="nc">&nbsp;    for (int i = 0; i &lt; bulkRequest.getItems().size(); i++) {</b>
+<b class="nc">&nbsp;      CategoryDto categoryDto = bulkRequest.getItems().get(i);</b>
+&nbsp;      try {
+<b class="nc">&nbsp;        if (categoryDto.getId() == null) {</b>
+<b class="nc">&nbsp;          throw new IllegalArgumentException(&quot;Category ID is required for update operation&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        CategoryDto updatedCategory =</b>
+<b class="nc">&nbsp;            categoryService.updateCategory(categoryDto.getId(), categoryDto);</b>
+<b class="nc">&nbsp;        bulkResponse.addResult(updatedCategory);</b>
+&nbsp;      } catch (Exception e) {
+<b class="nc">&nbsp;        logger.error(&quot;Failed to update category at index {}: {}&quot;, i, e.getMessage());</b>
+&nbsp;
+<b class="nc">&nbsp;        BulkOperationResponse.BulkOperationError error =</b>
+&nbsp;            new BulkOperationResponse.BulkOperationError(
+<b class="nc">&nbsp;                i, e.getMessage(), &quot;UPDATE_FAILED&quot;, categoryDto);</b>
+<b class="nc">&nbsp;        bulkResponse.addError(error);</b>
+&nbsp;
+<b class="nc">&nbsp;        if (bulkRequest.getOptions() != null &amp;&amp; !bulkRequest.getOptions().isContinueOnError()) {</b>
+&nbsp;          break;
+&nbsp;        }
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    bulkResponse.setExecutionTimeMs(System.currentTimeMillis() - startTime);</b>
+&nbsp;
+<b class="nc">&nbsp;    ApiResponse&lt;BulkOperationResponse&lt;CategoryDto&gt;&gt; response =</b>
+<b class="nc">&nbsp;        ApiResponse.success(&quot;Bulk operation completed&quot;, bulkResponse, request.getRequestURI());</b>
+&nbsp;
+<b class="nc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Bulk delete categories.
+&nbsp;   *
+&nbsp;   * @param ids list of category IDs to delete
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return bulk operation result
+&nbsp;   */
+&nbsp;  @DeleteMapping(&quot;/bulk&quot;)
+&nbsp;  @Operation(
+&nbsp;      summary = &quot;Bulk Delete Categories&quot;,
+&nbsp;      description = &quot;Delete multiple categories in a single operation&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Bulk operation completed&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = BulkOperationResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid request data&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;BulkOperationResponse&lt;Long&gt;&gt;&gt; bulkDeleteCategories(
+&nbsp;      @RequestBody List&lt;Long&gt; ids, HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.info(&quot;Bulk deleting {} categories&quot;, ids.size());</b>
+&nbsp;
+<b class="fc">&nbsp;    long startTime = System.currentTimeMillis();</b>
+<b class="fc">&nbsp;    BulkOperationResponse&lt;Long&gt; bulkResponse = new BulkOperationResponse&lt;&gt;();</b>
+&nbsp;
+<b class="fc">&nbsp;    for (int i = 0; i &lt; ids.size(); i++) {</b>
+<b class="fc">&nbsp;      Long id = ids.get(i);</b>
+&nbsp;      try {
+<b class="fc">&nbsp;        categoryService.deleteCategory(id);</b>
+<b class="fc">&nbsp;        bulkResponse.addResult(id);</b>
+&nbsp;      } catch (Exception e) {
+<b class="fc">&nbsp;        logger.error(&quot;Failed to delete category at index {}: {}&quot;, i, e.getMessage());</b>
+&nbsp;
+<b class="fc">&nbsp;        BulkOperationResponse.BulkOperationError error =</b>
+<b class="fc">&nbsp;            new BulkOperationResponse.BulkOperationError(i, e.getMessage(), &quot;DELETION_FAILED&quot;, id);</b>
+<b class="fc">&nbsp;        bulkResponse.addError(error);</b>
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    bulkResponse.setExecutionTimeMs(System.currentTimeMillis() - startTime);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;BulkOperationResponse&lt;Long&gt;&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;Bulk operation completed&quot;, bulkResponse, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  // ===== HELPER METHODS =====
+&nbsp;
+&nbsp;  private boolean hasFilters(String name, Long parentId, Integer level, Boolean isActive) {
+<b class="pc">&nbsp;    return StringUtils.hasText(name) || parentId != null || level != null || isActive != null;</b>
+&nbsp;  }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-07-19 20:52</div>
+</div>
+</body>
+</html>

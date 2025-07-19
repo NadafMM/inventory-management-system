@@ -1,0 +1,784 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ProductController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.inventorymanagement.product.controller</a>
+</div>
+
+<h1>Coverage Summary for Class: ProductController (com.inventorymanagement.product.controller)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ProductController</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (14/14)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    61.8%
+  </span>
+  <span class="absValue">
+    (21/34)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (120/120)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">ProductController$$SpringCGLIB$$0</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (14/14)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    61.8%
+  </span>
+  <span class="absValue">
+    (21/34)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (120/120)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.inventorymanagement.product.controller;
+&nbsp;
+&nbsp;import com.inventorymanagement.common.model.ApiResponse;
+&nbsp;import com.inventorymanagement.common.model.BulkOperationRequest;
+&nbsp;import com.inventorymanagement.common.model.BulkOperationResponse;
+&nbsp;import com.inventorymanagement.common.model.PagedResponse;
+&nbsp;import com.inventorymanagement.product.model.ProductDto;
+&nbsp;import com.inventorymanagement.product.service.ProductService;
+&nbsp;import io.swagger.v3.oas.annotations.Operation;
+&nbsp;import io.swagger.v3.oas.annotations.Parameter;
+&nbsp;import io.swagger.v3.oas.annotations.media.Content;
+&nbsp;import io.swagger.v3.oas.annotations.media.Schema;
+&nbsp;import io.swagger.v3.oas.annotations.responses.ApiResponses;
+&nbsp;import io.swagger.v3.oas.annotations.tags.Tag;
+&nbsp;import jakarta.servlet.http.HttpServletRequest;
+&nbsp;import jakarta.validation.Valid;
+&nbsp;import jakarta.validation.constraints.Max;
+&nbsp;import jakarta.validation.constraints.Min;
+&nbsp;import jakarta.validation.constraints.NotNull;
+&nbsp;import java.math.BigDecimal;
+&nbsp;import java.util.List;
+&nbsp;import org.slf4j.Logger;
+&nbsp;import org.slf4j.LoggerFactory;
+&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.data.domain.Page;
+&nbsp;import org.springframework.data.domain.PageRequest;
+&nbsp;import org.springframework.data.domain.Pageable;
+&nbsp;import org.springframework.data.domain.Sort;
+&nbsp;import org.springframework.http.HttpStatus;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.util.StringUtils;
+&nbsp;import org.springframework.web.bind.annotation.DeleteMapping;
+&nbsp;import org.springframework.web.bind.annotation.GetMapping;
+&nbsp;import org.springframework.web.bind.annotation.PathVariable;
+&nbsp;import org.springframework.web.bind.annotation.PostMapping;
+&nbsp;import org.springframework.web.bind.annotation.PutMapping;
+&nbsp;import org.springframework.web.bind.annotation.RequestBody;
+&nbsp;import org.springframework.web.bind.annotation.RequestMapping;
+&nbsp;import org.springframework.web.bind.annotation.RequestParam;
+&nbsp;import org.springframework.web.bind.annotation.RestController;
+&nbsp;
+&nbsp;/**
+&nbsp; * REST controller for Product management operations. Provides comprehensive CRUD operations,
+&nbsp; * search, filtering, and bulk operations.
+&nbsp; *
+&nbsp; * @version 1.0.0
+&nbsp; * @since 2025-01-15
+&nbsp; */
+&nbsp;@RestController
+&nbsp;@RequestMapping(&quot;/v1/products&quot;)
+&nbsp;@Tag(name = &quot;Product Management&quot;, description = &quot;Operations for managing products&quot;)
+<b class="fc">&nbsp;public class ProductController {</b>
+&nbsp;
+<b class="fc">&nbsp;  private static final Logger logger = LoggerFactory.getLogger(ProductController.class);</b>
+&nbsp;
+&nbsp;  @Autowired private ProductService productService;
+&nbsp;
+&nbsp;  // ===== CRUD OPERATIONS =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Create a new product.
+&nbsp;   *
+&nbsp;   * @param productDto the product data
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return the created product
+&nbsp;   */
+&nbsp;  @PostMapping
+&nbsp;  @Operation(summary = &quot;Create Product&quot;, description = &quot;Create a new product&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;201&quot;,
+&nbsp;            description = &quot;Product created successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid request data&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;403&quot;,
+&nbsp;            description = &quot;Forbidden&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;409&quot;,
+&nbsp;            description = &quot;Product already exists&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;ProductDto&gt;&gt; createProduct(
+&nbsp;      @Valid @RequestBody ProductDto productDto, HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.info(&quot;Creating new product: {}&quot;, productDto.getName());</b>
+&nbsp;
+<b class="fc">&nbsp;    ProductDto createdProduct = productService.createProduct(productDto);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;ProductDto&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(</b>
+<b class="fc">&nbsp;            &quot;Product created successfully&quot;, createdProduct, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.status(HttpStatus.CREATED).body(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Get product by ID.
+&nbsp;   *
+&nbsp;   * @param id the product ID
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return the product
+&nbsp;   */
+&nbsp;  @GetMapping(&quot;/{id}&quot;)
+&nbsp;  @Operation(summary = &quot;Get Product&quot;, description = &quot;Retrieve a product by its ID&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Product retrieved successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;404&quot;,
+&nbsp;            description = &quot;Product not found&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;ProductDto&gt;&gt; getProductById(
+&nbsp;      @PathVariable @NotNull Long id, HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.debug(&quot;Retrieving product with ID: {}&quot;, id);</b>
+&nbsp;
+<b class="fc">&nbsp;    ProductDto product = productService.getProductById(id);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;ProductDto&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;Product retrieved successfully&quot;, product, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Update an existing product.
+&nbsp;   *
+&nbsp;   * @param id the product ID
+&nbsp;   * @param productDto the updated product data
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return the updated product
+&nbsp;   */
+&nbsp;  @PutMapping(&quot;/{id}&quot;)
+&nbsp;  @Operation(summary = &quot;Update Product&quot;, description = &quot;Update an existing product&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Product updated successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid request data&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;403&quot;,
+&nbsp;            description = &quot;Forbidden&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;404&quot;,
+&nbsp;            description = &quot;Product not found&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;ProductDto&gt;&gt; updateProduct(
+&nbsp;      @PathVariable @NotNull Long id,
+&nbsp;      @Valid @RequestBody ProductDto productDto,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.info(&quot;Updating product with ID: {}&quot;, id);</b>
+&nbsp;
+<b class="fc">&nbsp;    ProductDto updatedProduct = productService.updateProduct(id, productDto);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;ProductDto&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(</b>
+<b class="fc">&nbsp;            &quot;Product updated successfully&quot;, updatedProduct, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Delete a product.
+&nbsp;   *
+&nbsp;   * @param id the product ID
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return confirmation message
+&nbsp;   */
+&nbsp;  @DeleteMapping(&quot;/{id}&quot;)
+&nbsp;  @Operation(summary = &quot;Delete Product&quot;, description = &quot;Delete a product by its ID&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Product deleted successfully&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;403&quot;,
+&nbsp;            description = &quot;Forbidden&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;404&quot;,
+&nbsp;            description = &quot;Product not found&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;409&quot;,
+&nbsp;            description = &quot;Product has dependencies&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; deleteProduct(
+&nbsp;      @PathVariable @NotNull Long id, HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.info(&quot;Deleting product with ID: {}&quot;, id);</b>
+&nbsp;
+<b class="fc">&nbsp;    productService.deleteProduct(id);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;Void&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;Product deleted successfully&quot;, null, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  // ===== SEARCH AND FILTERING =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Get all products with pagination and filtering.
+&nbsp;   *
+&nbsp;   * @param page page number (0-based)
+&nbsp;   * @param size page size
+&nbsp;   * @param sortBy sort field
+&nbsp;   * @param sortDir sort direction
+&nbsp;   * @param name filter by name
+&nbsp;   * @param categoryId filter by category ID
+&nbsp;   * @param brand filter by brand
+&nbsp;   * @param manufacturer filter by manufacturer
+&nbsp;   * @param minPrice filter by minimum price
+&nbsp;   * @param maxPrice filter by maximum price
+&nbsp;   * @param isActive filter by active status
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return paginated list of products
+&nbsp;   */
+&nbsp;  @GetMapping
+&nbsp;  @Operation(
+&nbsp;      summary = &quot;Get All Products&quot;,
+&nbsp;      description = &quot;Retrieve all products with pagination and filtering&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Products retrieved successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = PagedResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid request parameters&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;PagedResponse&lt;ProductDto&gt;&gt;&gt; getAllProducts(
+&nbsp;      @RequestParam(defaultValue = &quot;0&quot;) @Min(0) int page,
+&nbsp;      @RequestParam(defaultValue = &quot;20&quot;) @Min(1) @Max(100) int size,
+&nbsp;      @RequestParam(defaultValue = &quot;name&quot;) String sortBy,
+&nbsp;      @RequestParam(defaultValue = &quot;asc&quot;) String sortDir,
+&nbsp;      @RequestParam(required = false) String name,
+&nbsp;      @RequestParam(required = false) Long categoryId,
+&nbsp;      @RequestParam(required = false) String brand,
+&nbsp;      @RequestParam(required = false) String manufacturer,
+&nbsp;      @RequestParam(required = false) BigDecimal minPrice,
+&nbsp;      @RequestParam(required = false) BigDecimal maxPrice,
+&nbsp;      @RequestParam(required = false) Boolean isActive,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.debug(</b>
+&nbsp;        &quot;Retrieving products with filters - page: {}, size: {}, name: {}, categoryId: {}, brand: {}, isActive: {}&quot;,
+<b class="fc">&nbsp;        page,</b>
+<b class="fc">&nbsp;        size,</b>
+&nbsp;        name,
+&nbsp;        categoryId,
+&nbsp;        brand,
+&nbsp;        isActive);
+&nbsp;
+&nbsp;    // Build sort
+&nbsp;    Sort.Direction direction =
+<b class="pc">&nbsp;        sortDir.equalsIgnoreCase(&quot;desc&quot;) ? Sort.Direction.DESC : Sort.Direction.ASC;</b>
+<b class="fc">&nbsp;    Sort sort = Sort.by(direction, sortBy);</b>
+<b class="fc">&nbsp;    Pageable pageable = PageRequest.of(page, size, sort);</b>
+&nbsp;
+&nbsp;    // Apply filters and get results
+&nbsp;    Page&lt;ProductDto&gt; productsPage;
+<b class="fc">&nbsp;    if (hasFilters(name, categoryId, brand, manufacturer, minPrice, maxPrice, isActive)) {</b>
+<b class="fc">&nbsp;      productsPage =</b>
+<b class="fc">&nbsp;          productService.searchProducts(</b>
+&nbsp;              name, categoryId, brand, manufacturer, minPrice, maxPrice, isActive, pageable);
+&nbsp;    } else {
+<b class="fc">&nbsp;      productsPage = productService.getAllProducts(pageable);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // Build response with pagination links
+<b class="fc">&nbsp;    String baseUrl = request.getRequestURL().toString();</b>
+<b class="fc">&nbsp;    PagedResponse&lt;ProductDto&gt; pagedResponse = PagedResponse.of(productsPage, baseUrl);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;PagedResponse&lt;ProductDto&gt;&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(</b>
+<b class="fc">&nbsp;            &quot;Products retrieved successfully&quot;, pagedResponse, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Search products by name or description.
+&nbsp;   *
+&nbsp;   * @param query search query
+&nbsp;   * @param page page number
+&nbsp;   * @param size page size
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return search results
+&nbsp;   */
+&nbsp;  @GetMapping(&quot;/search&quot;)
+&nbsp;  @Operation(summary = &quot;Search Products&quot;, description = &quot;Search products by name or description&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Search completed successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = PagedResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid search parameters&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;PagedResponse&lt;ProductDto&gt;&gt;&gt; searchProducts(
+&nbsp;      @RequestParam @Parameter(description = &quot;Search query&quot;) String query,
+&nbsp;      @RequestParam(defaultValue = &quot;0&quot;) @Min(0) int page,
+&nbsp;      @RequestParam(defaultValue = &quot;20&quot;) @Min(1) @Max(100) int size,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.debug(&quot;Searching products with query: {}&quot;, query);</b>
+&nbsp;
+<b class="fc">&nbsp;    Pageable pageable = PageRequest.of(page, size);</b>
+<b class="fc">&nbsp;    Page&lt;ProductDto&gt; productsPage =</b>
+<b class="fc">&nbsp;        productService.searchProductsByNameOrDescription(query, pageable);</b>
+&nbsp;
+<b class="fc">&nbsp;    String baseUrl = request.getRequestURL().toString();</b>
+<b class="fc">&nbsp;    PagedResponse&lt;ProductDto&gt; pagedResponse = PagedResponse.of(productsPage, baseUrl);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;PagedResponse&lt;ProductDto&gt;&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(</b>
+<b class="fc">&nbsp;            &quot;Search completed successfully&quot;, pagedResponse, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Get products by category.
+&nbsp;   *
+&nbsp;   * @param categoryId the category ID
+&nbsp;   * @param page page number
+&nbsp;   * @param size page size
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return products in the category
+&nbsp;   */
+&nbsp;  @GetMapping(&quot;/category/{categoryId}&quot;)
+&nbsp;  @Operation(
+&nbsp;      summary = &quot;Get Products by Category&quot;,
+&nbsp;      description = &quot;Retrieve products in a specific category&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Products retrieved successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = PagedResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;404&quot;,
+&nbsp;            description = &quot;Category not found&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;PagedResponse&lt;ProductDto&gt;&gt;&gt; getProductsByCategory(
+&nbsp;      @PathVariable @NotNull Long categoryId,
+&nbsp;      @RequestParam(defaultValue = &quot;0&quot;) @Min(0) int page,
+&nbsp;      @RequestParam(defaultValue = &quot;20&quot;) @Min(1) @Max(100) int size,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.debug(&quot;Retrieving products for category ID: {}&quot;, categoryId);</b>
+&nbsp;
+<b class="fc">&nbsp;    Pageable pageable = PageRequest.of(page, size);</b>
+<b class="fc">&nbsp;    Page&lt;ProductDto&gt; productsPage = productService.getProductsByCategory(categoryId, pageable);</b>
+&nbsp;
+<b class="fc">&nbsp;    String baseUrl = request.getRequestURL().toString();</b>
+<b class="fc">&nbsp;    PagedResponse&lt;ProductDto&gt; pagedResponse = PagedResponse.of(productsPage, baseUrl);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;PagedResponse&lt;ProductDto&gt;&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(</b>
+<b class="fc">&nbsp;            &quot;Products retrieved successfully&quot;, pagedResponse, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Get products by brand.
+&nbsp;   *
+&nbsp;   * @param brand the brand name
+&nbsp;   * @param page page number
+&nbsp;   * @param size page size
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return products by brand
+&nbsp;   */
+&nbsp;  @GetMapping(&quot;/brand/{brand}&quot;)
+&nbsp;  @Operation(summary = &quot;Get Products by Brand&quot;, description = &quot;Retrieve products by brand&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Products retrieved successfully&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = PagedResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;PagedResponse&lt;ProductDto&gt;&gt;&gt; getProductsByBrand(
+&nbsp;      @PathVariable @NotNull String brand,
+&nbsp;      @RequestParam(defaultValue = &quot;0&quot;) @Min(0) int page,
+&nbsp;      @RequestParam(defaultValue = &quot;20&quot;) @Min(1) @Max(100) int size,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.debug(&quot;Retrieving products for brand: {}&quot;, brand);</b>
+&nbsp;
+<b class="fc">&nbsp;    Pageable pageable = PageRequest.of(page, size);</b>
+<b class="fc">&nbsp;    Page&lt;ProductDto&gt; productsPage = productService.getProductsByBrand(brand, pageable);</b>
+&nbsp;
+<b class="fc">&nbsp;    String baseUrl = request.getRequestURL().toString();</b>
+<b class="fc">&nbsp;    PagedResponse&lt;ProductDto&gt; pagedResponse = PagedResponse.of(productsPage, baseUrl);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;PagedResponse&lt;ProductDto&gt;&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(</b>
+<b class="fc">&nbsp;            &quot;Products retrieved successfully&quot;, pagedResponse, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  // ===== BULK OPERATIONS =====
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Bulk create products.
+&nbsp;   *
+&nbsp;   * @param bulkRequest bulk operation request
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return bulk operation result
+&nbsp;   */
+&nbsp;  @PostMapping(&quot;/bulk&quot;)
+&nbsp;  @Operation(
+&nbsp;      summary = &quot;Bulk Create Products&quot;,
+&nbsp;      description = &quot;Create multiple products in a single operation&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Bulk operation completed&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = BulkOperationResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid request data&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;403&quot;,
+&nbsp;            description = &quot;Forbidden&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;BulkOperationResponse&lt;ProductDto&gt;&gt;&gt; bulkCreateProducts(
+&nbsp;      @Valid @RequestBody BulkOperationRequest&lt;ProductDto&gt; bulkRequest,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.info(&quot;Bulk creating {} products&quot;, bulkRequest.getItems().size());</b>
+&nbsp;
+<b class="fc">&nbsp;    long startTime = System.currentTimeMillis();</b>
+<b class="fc">&nbsp;    BulkOperationResponse&lt;ProductDto&gt; bulkResponse = new BulkOperationResponse&lt;&gt;();</b>
+&nbsp;
+<b class="fc">&nbsp;    for (int i = 0; i &lt; bulkRequest.getItems().size(); i++) {</b>
+<b class="fc">&nbsp;      ProductDto productDto = bulkRequest.getItems().get(i);</b>
+&nbsp;      try {
+<b class="fc">&nbsp;        ProductDto createdProduct = productService.createProduct(productDto);</b>
+<b class="fc">&nbsp;        bulkResponse.addResult(createdProduct);</b>
+&nbsp;      } catch (Exception e) {
+<b class="fc">&nbsp;        logger.error(&quot;Failed to create product at index {}: {}&quot;, i, e.getMessage());</b>
+&nbsp;
+<b class="fc">&nbsp;        BulkOperationResponse.BulkOperationError error =</b>
+&nbsp;            new BulkOperationResponse.BulkOperationError(
+<b class="fc">&nbsp;                i, e.getMessage(), &quot;CREATION_FAILED&quot;, productDto);</b>
+<b class="fc">&nbsp;        bulkResponse.addError(error);</b>
+&nbsp;
+<b class="pc">&nbsp;        if (bulkRequest.getOptions() != null &amp;&amp; !bulkRequest.getOptions().isContinueOnError()) {</b>
+&nbsp;          break;
+&nbsp;        }
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    bulkResponse.setExecutionTimeMs(System.currentTimeMillis() - startTime);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;BulkOperationResponse&lt;ProductDto&gt;&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;Bulk operation completed&quot;, bulkResponse, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Bulk update products.
+&nbsp;   *
+&nbsp;   * @param bulkRequest bulk operation request
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return bulk operation result
+&nbsp;   */
+&nbsp;  @PutMapping(&quot;/bulk&quot;)
+&nbsp;  @Operation(
+&nbsp;      summary = &quot;Bulk Update Products&quot;,
+&nbsp;      description = &quot;Update multiple products in a single operation&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Bulk operation completed&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = BulkOperationResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid request data&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;403&quot;,
+&nbsp;            description = &quot;Forbidden&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;BulkOperationResponse&lt;ProductDto&gt;&gt;&gt; bulkUpdateProducts(
+&nbsp;      @Valid @RequestBody BulkOperationRequest&lt;ProductDto&gt; bulkRequest,
+&nbsp;      HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.info(&quot;Bulk updating {} products&quot;, bulkRequest.getItems().size());</b>
+&nbsp;
+<b class="fc">&nbsp;    long startTime = System.currentTimeMillis();</b>
+<b class="fc">&nbsp;    BulkOperationResponse&lt;ProductDto&gt; bulkResponse = new BulkOperationResponse&lt;&gt;();</b>
+&nbsp;
+<b class="fc">&nbsp;    for (int i = 0; i &lt; bulkRequest.getItems().size(); i++) {</b>
+<b class="fc">&nbsp;      ProductDto productDto = bulkRequest.getItems().get(i);</b>
+&nbsp;      try {
+<b class="fc">&nbsp;        if (productDto.getId() == null) {</b>
+<b class="fc">&nbsp;          throw new IllegalArgumentException(&quot;Product ID is required for update operation&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        ProductDto updatedProduct = productService.updateProduct(productDto.getId(), productDto);</b>
+<b class="fc">&nbsp;        bulkResponse.addResult(updatedProduct);</b>
+&nbsp;      } catch (Exception e) {
+<b class="fc">&nbsp;        logger.error(&quot;Failed to update product at index {}: {}&quot;, i, e.getMessage());</b>
+&nbsp;
+<b class="fc">&nbsp;        BulkOperationResponse.BulkOperationError error =</b>
+&nbsp;            new BulkOperationResponse.BulkOperationError(
+<b class="fc">&nbsp;                i, e.getMessage(), &quot;UPDATE_FAILED&quot;, productDto);</b>
+<b class="fc">&nbsp;        bulkResponse.addError(error);</b>
+&nbsp;
+<b class="pc">&nbsp;        if (bulkRequest.getOptions() != null &amp;&amp; !bulkRequest.getOptions().isContinueOnError()) {</b>
+&nbsp;          break;
+&nbsp;        }
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    bulkResponse.setExecutionTimeMs(System.currentTimeMillis() - startTime);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;BulkOperationResponse&lt;ProductDto&gt;&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;Bulk operation completed&quot;, bulkResponse, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Bulk delete products.
+&nbsp;   *
+&nbsp;   * @param ids list of product IDs to delete
+&nbsp;   * @param request HTTP request for path information
+&nbsp;   * @return bulk operation result
+&nbsp;   */
+&nbsp;  @DeleteMapping(&quot;/bulk&quot;)
+&nbsp;  @Operation(
+&nbsp;      summary = &quot;Bulk Delete Products&quot;,
+&nbsp;      description = &quot;Delete multiple products in a single operation&quot;)
+&nbsp;  @ApiResponses(
+&nbsp;      value = {
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;200&quot;,
+&nbsp;            description = &quot;Bulk operation completed&quot;,
+&nbsp;            content = @Content(schema = @Schema(implementation = BulkOperationResponse.class))),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;400&quot;,
+&nbsp;            description = &quot;Invalid request data&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;401&quot;,
+&nbsp;            description = &quot;Unauthorized&quot;),
+&nbsp;        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+&nbsp;            responseCode = &quot;403&quot;,
+&nbsp;            description = &quot;Forbidden&quot;)
+&nbsp;      })
+&nbsp;  public ResponseEntity&lt;ApiResponse&lt;BulkOperationResponse&lt;Long&gt;&gt;&gt; bulkDeleteProducts(
+&nbsp;      @RequestBody List&lt;Long&gt; ids, HttpServletRequest request) {
+&nbsp;
+<b class="fc">&nbsp;    logger.info(&quot;Bulk deleting {} products&quot;, ids.size());</b>
+&nbsp;
+<b class="fc">&nbsp;    long startTime = System.currentTimeMillis();</b>
+<b class="fc">&nbsp;    BulkOperationResponse&lt;Long&gt; bulkResponse = new BulkOperationResponse&lt;&gt;();</b>
+&nbsp;
+<b class="fc">&nbsp;    for (int i = 0; i &lt; ids.size(); i++) {</b>
+<b class="fc">&nbsp;      Long id = ids.get(i);</b>
+&nbsp;      try {
+<b class="fc">&nbsp;        productService.deleteProduct(id);</b>
+<b class="fc">&nbsp;        bulkResponse.addResult(id);</b>
+&nbsp;      } catch (Exception e) {
+<b class="fc">&nbsp;        logger.error(&quot;Failed to delete product at index {}: {}&quot;, i, e.getMessage());</b>
+&nbsp;
+<b class="fc">&nbsp;        BulkOperationResponse.BulkOperationError error =</b>
+<b class="fc">&nbsp;            new BulkOperationResponse.BulkOperationError(i, e.getMessage(), &quot;DELETION_FAILED&quot;, id);</b>
+<b class="fc">&nbsp;        bulkResponse.addError(error);</b>
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    bulkResponse.setExecutionTimeMs(System.currentTimeMillis() - startTime);</b>
+&nbsp;
+<b class="fc">&nbsp;    ApiResponse&lt;BulkOperationResponse&lt;Long&gt;&gt; response =</b>
+<b class="fc">&nbsp;        ApiResponse.success(&quot;Bulk operation completed&quot;, bulkResponse, request.getRequestURI());</b>
+&nbsp;
+<b class="fc">&nbsp;    return ResponseEntity.ok(response);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  // ===== HELPER METHODS =====
+&nbsp;
+&nbsp;  private boolean hasFilters(
+&nbsp;      String name,
+&nbsp;      Long categoryId,
+&nbsp;      String brand,
+&nbsp;      String manufacturer,
+&nbsp;      BigDecimal minPrice,
+&nbsp;      BigDecimal maxPrice,
+&nbsp;      Boolean isActive) {
+<b class="pc">&nbsp;    return StringUtils.hasText(name)</b>
+&nbsp;        || categoryId != null
+<b class="pc">&nbsp;        || StringUtils.hasText(brand)</b>
+<b class="pc">&nbsp;        || StringUtils.hasText(manufacturer)</b>
+&nbsp;        || minPrice != null
+&nbsp;        || maxPrice != null
+&nbsp;        || isActive != null;
+&nbsp;  }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-07-19 20:52</div>
+</div>
+</body>
+</html>

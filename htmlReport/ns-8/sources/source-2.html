@@ -1,0 +1,169 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > EntityNotFoundException</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.inventorymanagement.common.exception</a>
+</div>
+
+<h1>Coverage Summary for Class: EntityNotFoundException (com.inventorymanagement.common.exception)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">EntityNotFoundException</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    60%
+  </span>
+  <span class="absValue">
+    (3/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    45.5%
+  </span>
+  <span class="absValue">
+    (5/11)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.inventorymanagement.common.exception;
+&nbsp;
+&nbsp;/**
+&nbsp; * Exception thrown when a requested entity is not found in the system. This is a specialized
+&nbsp; * business exception for entity lookup failures.
+&nbsp; */
+&nbsp;public class EntityNotFoundException extends BusinessException {
+&nbsp;
+&nbsp;  private final String entityType;
+&nbsp;  private final Object entityId;
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Constructs a new entity not found exception with the specified entity type and ID.
+&nbsp;   *
+&nbsp;   * @param entityType the type of entity that was not found
+&nbsp;   * @param entityId the ID of the entity that was not found
+&nbsp;   */
+&nbsp;  public EntityNotFoundException(String entityType, Object entityId) {
+<b class="fc">&nbsp;    super(&quot;ENTITY_NOT_FOUND&quot;, String.format(&quot;%s with ID %s not found&quot;, entityType, entityId));</b>
+<b class="fc">&nbsp;    this.entityType = entityType;</b>
+<b class="fc">&nbsp;    this.entityId = entityId;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Constructs a new entity not found exception with the specified message.
+&nbsp;   *
+&nbsp;   * @param message the detail message
+&nbsp;   */
+&nbsp;  public EntityNotFoundException(String message) {
+<b class="nc">&nbsp;    super(&quot;ENTITY_NOT_FOUND&quot;, message);</b>
+<b class="nc">&nbsp;    this.entityType = null;</b>
+<b class="nc">&nbsp;    this.entityId = null;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Constructs a new entity not found exception with the specified entity type, ID, and message.
+&nbsp;   *
+&nbsp;   * @param entityType the type of entity that was not found
+&nbsp;   * @param entityId the ID of the entity that was not found
+&nbsp;   * @param message the detail message
+&nbsp;   */
+&nbsp;  public EntityNotFoundException(String entityType, Object entityId, String message) {
+<b class="nc">&nbsp;    super(&quot;ENTITY_NOT_FOUND&quot;, message);</b>
+<b class="nc">&nbsp;    this.entityType = entityType;</b>
+<b class="nc">&nbsp;    this.entityId = entityId;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Gets the entity type that was not found.
+&nbsp;   *
+&nbsp;   * @return the entity type, or null if not set
+&nbsp;   */
+&nbsp;  public String getEntityType() {
+<b class="fc">&nbsp;    return entityType;</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Gets the entity ID that was not found.
+&nbsp;   *
+&nbsp;   * @return the entity ID, or null if not set
+&nbsp;   */
+&nbsp;  public Object getEntityId() {
+<b class="fc">&nbsp;    return entityId;</b>
+&nbsp;  }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-07-19 20:52</div>
+</div>
+</body>
+</html>
