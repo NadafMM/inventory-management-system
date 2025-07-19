@@ -219,3 +219,4 @@ dev-debug.log
 # tasks/ 
 
 *.
+.idea
