@@ -38,7 +38,7 @@ public class CategoryService {
 
     @Autowired
     public CategoryService(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
+        this.categoryRepository = null;
     }
 
     // ===== CRUD OPERATIONS =====
